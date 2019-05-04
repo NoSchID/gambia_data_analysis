@@ -1,16 +1,17 @@
 ###########################################################
-### Imperial HBV model:                                  ###
+### Imperial HBV model:                                 ###
 ### Clean input natural history data for The Gambia     ###
-### Source: mapping rev                                 ###
+### Source: mapping review                              ###
 ###########################################################
 # Load packages and set directories
 require(tidyr)  # for data processing
 require(dplyr)  # for data processing
 require(here)  # for setting working directory
 require(ggplot2)
-inpath_hbvdata <- "data-raw"
+inpath_hbvdata <- "data_raw"
+outpath_hbvdata <- "data_clean"
 
-## HBsAg prevalence in The Gambia dataset
+## HBsAg prevalence in The Gambia dataset ----
 # Age- and sex-specific datasets
 input_hbsag_prev <- read.csv(here(inpath_hbvdata,
                                   "hbsag_prevalence.csv"),
@@ -52,18 +53,34 @@ subset_hbsag_prev$age_assign_years[subset_hbsag_prev$age_assign_years == "NR"] <
   (as.numeric(subset_hbsag_prev$age_min_years[subset_hbsag_prev$age_assign_years == "NR"]) +
   as.numeric(subset_hbsag_prev$age_max_years[subset_hbsag_prev$age_assign_years == "NR"]) + 1)/2
 
-# 2) Assign to the pre- or post-vaccination period (1991)
+# 2) Assign a specific year to each data point
 # Split datapoint collection period column into minimum and maximum year
 subset_hbsag_prev <- subset_hbsag_prev %>%
   separate(col = dp_period, into = c("dp_period_min", "dp_period_max"),
            sep = "-", remove = FALSE) %>%
-  mutate(dp_period_max = coalesce(dp_period_max, dp_period_min))
+  mutate(dp_period_max = coalesce(dp_period_max, dp_period_min)) 
+# Take mean of minimum and maximum time of data collection
+subset_hbsag_prev$dp_period_assign_years <- (as.numeric(subset_hbsag_prev$dp_period_min) +
+                                             as.numeric(subset_hbsag_prev$dp_period_max))/2
+
+
+# In Keneba and Manduar, vaccination was introduced in 1985 rather than in 1991 like
+# the rest of The Gambia. For use in model, therefore need to assign an appropriate 
+# year of data collection with regards to vaccination introduction
+subset_hbsag_prev[(subset_hbsag_prev$location == "Keneba" | 
+                     subset_hbsag_prev$location == "Manduar") &
+                    subset_hbsag_prev$dp_period_assign_years >= 1985,] <- filter(subset_hbsag_prev, 
+                             (location == "Keneba" | location == "Manduar") &
+                               dp_period_assign_years >= 1985) %>%
+  mutate(dp_period_assign_years = replace(dp_period_assign_years, values = (1991+(dp_period_assign_years-1985))))
+
+# 3) Assign to the pre- or post-vaccination period (1991)
 # Assign post-vaccination status to data points collected in 1991 or after
 # and pre-vaccination status to data points collected before 1991
 subset_hbsag_prev$dp_period_vacc <- "post-vacc"
-subset_hbsag_prev$dp_period_vacc[subset_hbsag_prev$dp_period_max < 1991] <- "pre-vacc"
+subset_hbsag_prev$dp_period_vacc[subset_hbsag_prev$dp_period_assign_years < 1991] <- "pre-vacc"
 
-# 3) Assign data points to a series based on the study link (if available) or the IDs
+# 4) Assign data points to a series based on the study link (if available) or the IDs
 subset_hbsag_prev$series <- subset_hbsag_prev$study_link
 subset_hbsag_prev$series[is.na(subset_hbsag_prev$series) == TRUE] <-
   paste0(subset_hbsag_prev$id_paper[is.na(subset_hbsag_prev$series) == TRUE], "-",
@@ -77,6 +94,41 @@ subset_hbsag_prev$series[subset_hbsag_prev$series == "GMB12-3-x" |
                          subset_hbsag_prev$series == "GMB12-4-a" |
                          subset_hbsag_prev$series == "GMB12-4-b"] <- "GMB12-3+4"
 
+# Save a subset of dataset for use in model
+hbsag_dataset_for_fitting <- select(subset_hbsag_prev,
+                                    id_paper,
+                                    id_group,
+                                    id_proc,
+                                    pop_group_clinical,
+                                    dp_period_assign_years,
+                                    sex,
+                                    age_assign_years,
+                                    hbsag_positive_prop, 
+                                    hbsag_positive_prop_ci_lower,
+                                    hbsag_positive_prop_ci_upper,
+                                    sample_size)
+
+# Turn number columns into numeric format
+hbsag_dataset_for_fitting[,c(5,7:11)] <- apply(hbsag_dataset_for_fitting[,c(5,7:11)], 2, 
+                                               function(x) as.numeric(x))
+
+hbsag_dataset_for_fitting <- cbind(prevalence_outcome = "HBsAg_prevalence",
+                                   hbsag_dataset_for_fitting) %>%
+  arrange(sex, dp_period_assign_years, id_paper, id_group, age_assign_years)
+# Replace spaces and dashes with underscores
+hbsag_dataset_for_fitting$pop_group_clinical <- gsub(" - |-|[[:space:]]", "_", 
+                                                     hbsag_dataset_for_fitting$pop_group_clinical)
+
+# Round ages down to the nearest 0.5 to match model output
+hbsag_dataset_for_fitting$age_assign_years <- floor(hbsag_dataset_for_fitting$age_assign_years/0.5)*0.5
+# Rename columns to match model output
+names(hbsag_dataset_for_fitting)[names(hbsag_dataset_for_fitting)=="dp_period_assign_years"] <- "time"
+names(hbsag_dataset_for_fitting)[names(hbsag_dataset_for_fitting)=="age_assign_years"] <- "age"
+names(hbsag_dataset_for_fitting)[names(hbsag_dataset_for_fitting)=="hbsag_positive_prop"] <- "value"
+names(hbsag_dataset_for_fitting)[names(hbsag_dataset_for_fitting)=="hbsag_positive_prop_ci_lower"] <- "ci_lower"
+names(hbsag_dataset_for_fitting)[names(hbsag_dataset_for_fitting)=="hbsag_positive_prop_ci_upper"] <- "ci_upper"
+
+#write.csv(hbsag_dataset_for_fitting, file = here(outpath_hbvdata, "hbsag_prevalence.csv"), row.names = FALSE)
 
 ## PRE-VACCINATION PLOTS
 # Plot all data points
@@ -117,14 +169,16 @@ ggplot(data = filter(subset_hbsag_prev, dp_period_vacc == "post-vacc"),
        aes(x = as.numeric(age_assign_years), y = as.numeric(hbsag_positive_prop),
            color = series)) +
   geom_point(size = 3) +
-  geom_text(aes(label = dp_period), vjust=1.5) +
+  geom_text(aes(label = dp_period_assign_years), vjust=1.5) +
   theme_bw() + ylim(0, 0.4) + xlim(0,80) + ggtitle("Post-1991 data points") +
   ylab("HBsAg prevalence (proportion)") + xlab("Age (years)")  +
   scale_color_manual(values=c("#89C5DA", "#DA5724", "#74D944", "#CE50CA",
                               "#3F4921", "#D1A33D", "#8569D5", "#5F7FC7",
                               "#673770", "#38333E"))
 
-## Natural history progression rates in West Africa
+
+
+## Natural history progression rates in West Africa ----
 input_progression_rates <- read.csv(here(inpath_hbvdata,
                                          "natural_history_progression_rates.csv"),
                                     header = TRUE, check.names = FALSE,

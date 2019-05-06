@@ -3,7 +3,7 @@
 ### Clean input natural history data for The Gambia     ###
 ### Source: mapping review                              ###
 ###########################################################
-# Load packages and set directories ----
+## Load packages and set directories ----
 require(tidyr)  # for data processing
 require(dplyr)  # for data processing
 require(here)  # for setting working directory
@@ -11,15 +11,15 @@ require(ggplot2)
 inpath_hbvdata <- "data_raw"
 outpath_hbvdata <- "data_clean"
 
-## HBsAg prevalence in The Gambia dataset ----
+## HBsAg and anti-HBc prevalence in The Gambia dataset ----
 # Age- and sex-specific datasets
-input_hbsag_prev <- read.csv(here(inpath_hbvdata,
+input_hbsag_antihbc_prev <- read.csv(here(inpath_hbvdata,
                                   "hbsag_prevalence.csv"),
                                   header = TRUE, check.names = FALSE,
                                   stringsAsFactors = FALSE)
 
 
-subset_hbsag_prev <- select(input_hbsag_prev,
+subset_hbsag_prev <- select(input_hbsag_antihbc_prev,
                             id_paper,
                             id_group,
                             id_proc,
@@ -37,8 +37,10 @@ subset_hbsag_prev <- select(input_hbsag_prev,
                             hbsag_positive_prop,
                             hbsag_positive_prop_ci_lower,
                             hbsag_positive_prop_ci_upper,
-                            sample_size) %>%
-  filter(hbsag_positive_prop != "DUPLICATE" & hbsag_positive_prop != "NR")
+                            antihbc_positive_prop,
+                            antihbc_positive_prop_ci_lower,
+                            antihbc_positive_prop_ci_upper,
+                            sample_size) 
 
 ## Processing
 
@@ -94,7 +96,7 @@ subset_hbsag_prev$series[subset_hbsag_prev$series == "GMB12-3-x" |
                          subset_hbsag_prev$series == "GMB12-4-a" |
                          subset_hbsag_prev$series == "GMB12-4-b"] <- "GMB12-3+4"
 
-# Save a subset of dataset for use in model
+# Save a subset of HBsAg prevalence dataset for use in model
 hbsag_dataset_for_fitting <- select(subset_hbsag_prev,
                                     id_paper,
                                     id_group,
@@ -106,7 +108,8 @@ hbsag_dataset_for_fitting <- select(subset_hbsag_prev,
                                     hbsag_positive_prop, 
                                     hbsag_positive_prop_ci_lower,
                                     hbsag_positive_prop_ci_upper,
-                                    sample_size)
+                                    sample_size) %>%
+  filter(hbsag_positive_prop != "DUPLICATE" & hbsag_positive_prop != "NR")
 
 # Turn number columns into numeric format
 hbsag_dataset_for_fitting[,c(5,7:11)] <- apply(hbsag_dataset_for_fitting[,c(5,7:11)], 2, 
@@ -130,6 +133,45 @@ names(hbsag_dataset_for_fitting)[names(hbsag_dataset_for_fitting)=="hbsag_positi
 
 #write.csv(hbsag_dataset_for_fitting, file = here(outpath_hbvdata, "hbsag_prevalence.csv"), row.names = FALSE)
 
+# Save a subset of anti-HBc prevalence dataset for use in model
+antihbc_dataset_for_fitting <- select(subset_hbsag_prev,
+                                    id_paper,
+                                    id_group,
+                                    id_proc,
+                                    pop_group_clinical,
+                                    dp_period_assign_years,
+                                    sex,
+                                    age_assign_years,
+                                    antihbc_positive_prop, 
+                                    antihbc_positive_prop_ci_lower,
+                                    antihbc_positive_prop_ci_upper,
+                                    sample_size) %>%
+  filter(antihbc_positive_prop != "DUPLICATE" & antihbc_positive_prop != "NR")
+
+# Turn number columns into numeric format
+antihbc_dataset_for_fitting[,c(5,7:11)] <- apply(antihbc_dataset_for_fitting[,c(5,7:11)], 2, 
+                                               function(x) as.numeric(x))
+
+antihbc_dataset_for_fitting <- cbind(prevalence_outcome = "Anti_HBc_prevalence",
+                                   antihbc_dataset_for_fitting) %>%
+  arrange(sex, dp_period_assign_years, id_paper, id_group, age_assign_years)
+# Replace spaces and dashes with underscores
+antihbc_dataset_for_fitting$pop_group_clinical <- gsub(" - |-|[[:space:]]", "_", 
+                                                     antihbc_dataset_for_fitting$pop_group_clinical)
+
+# Round ages down to the nearest 0.5 to match model output
+antihbc_dataset_for_fitting$age_assign_years <- floor(antihbc_dataset_for_fitting$age_assign_years/0.5)*0.5
+# Rename columns to match model output
+names(antihbc_dataset_for_fitting)[names(antihbc_dataset_for_fitting)=="dp_period_assign_years"] <- "time"
+names(antihbc_dataset_for_fitting)[names(antihbc_dataset_for_fitting)=="age_assign_years"] <- "age"
+names(antihbc_dataset_for_fitting)[names(antihbc_dataset_for_fitting)=="antihbc_positive_prop"] <- "value"
+names(antihbc_dataset_for_fitting)[names(antihbc_dataset_for_fitting)=="antihbc_positive_prop_ci_lower"] <- "ci_lower"
+names(antihbc_dataset_for_fitting)[names(antihbc_dataset_for_fitting)=="antihbc_positive_prop_ci_upper"] <- "ci_upper"
+
+#write.csv(antihbc_dataset_for_fitting, file = here(outpath_hbvdata, "antihbc_prevalence.csv"), row.names = FALSE)
+
+
+## HBsAg prevalence plots ----
 ## PRE-VACCINATION PLOTS
 # Plot all data points
 ggplot() +
@@ -175,6 +217,7 @@ ggplot(data = filter(subset_hbsag_prev, dp_period_vacc == "post-vacc"),
   scale_color_manual(values=c("#89C5DA", "#DA5724", "#74D944", "#CE50CA",
                               "#3F4921", "#D1A33D", "#8569D5", "#5F7FC7",
                               "#673770", "#38333E"))
+
 
 ## HBeAg prevalence in The Gambia dataset ----
 # Age- and sex-specific dataset
@@ -265,6 +308,134 @@ names(hbeag_dataset_for_fitting)[names(hbeag_dataset_for_fitting)=="hbeag_positi
 
 #write.csv(hbeag_dataset_for_fitting, file = here(outpath_hbvdata, "hbeag_prevalence.csv"), row.names = FALSE)
 
+
+
+## Natural history prevalence dataset ----
+# Here the age and timepoint assignment is different from sAg/anti-HBc/eAg datasets!
+input_natural_history_prev <- read.csv(here(inpath_hbvdata,
+                                          "natural_history_prevalence.csv"),
+                                     header = TRUE, check.names = FALSE,
+                                     stringsAsFactors = FALSE)
+
+subset_natural_history_prev <- select(input_natural_history_prev,
+                            id_paper,
+                            id_group,
+                            id_proc,
+                            pop_group_clinical,
+                            pop_group_demographic,
+                            geographic_scope,
+                            location,
+                            recruitment_setting,
+                            study_link,
+                            recruitment_period,
+                            dp_period,
+                            starts_with("age"),
+                            sex,
+                            proportion_male,
+                            vaccinated,
+                            dp_description,
+                            model_numerator,
+                            model_denominator,
+                            prevalence,
+                            prevalence_ci_lower,
+                            prevalence_ci_upper,
+                            sample_size) 
+
+## Processing
+
+# 1) Assign an age range to each datapoint
+# Use given age range if available
+subset_natural_history_prev$age_assign_min_years <- subset_natural_history_prev$age_min_years
+subset_natural_history_prev$age_assign_max_years <- subset_natural_history_prev$age_max_years
+# Else use interquartile range
+# Splitting IQR column into the minimum and maximum value
+subset_natural_history_prev$age_assign_min_years[subset_natural_history_prev$age_assign_min_years == "NR"] <-
+  unlist(lapply(strsplit(subset_natural_history_prev$age_iqr_years[subset_natural_history_prev$age_assign_min_years == "NR"], "-"), "[[",1))
+subset_natural_history_prev$age_assign_max_years[subset_natural_history_prev$age_assign_max_years == "NR"] <-
+sapply(strsplit(subset_natural_history_prev$age_iqr_years[subset_natural_history_prev$age_assign_max_years == "NR"], "-"), "[",2)
+# Else use mean +/- 2*SD (in a normal distribution, 95% of data falls within this range)
+subset_natural_history_prev$age_assign_min_years[is.na(subset_natural_history_prev$age_assign_min_years) == TRUE] <-
+  (as.numeric(subset_natural_history_prev$age_mean_years[is.na(subset_natural_history_prev$age_assign_min_years) == TRUE])-2*
+  subset_natural_history_prev$age_sd_years[is.na(subset_natural_history_prev$age_assign_min_years) == TRUE])
+subset_natural_history_prev$age_assign_max_years[is.na(subset_natural_history_prev$age_assign_max_years) == TRUE] <-
+  (as.numeric(subset_natural_history_prev$age_mean_years[is.na(subset_natural_history_prev$age_assign_max_years) == TRUE])+2*
+     subset_natural_history_prev$age_sd_years[is.na(subset_natural_history_prev$age_assign_max_years) == TRUE])
+
+
+# 2) Assign a specific year to each data point WITH EXCEPTION
+# Split datapoint collection period column into minimum and maximum year
+subset_natural_history_prev <- subset_natural_history_prev %>%
+  separate(col = dp_period, into = c("dp_period_min", "dp_period_max"),
+           sep = "-", remove = FALSE) %>%
+  mutate(dp_period_max = coalesce(dp_period_max, dp_period_min)) 
+# Take mean of minimum and maximum time of data collection
+subset_natural_history_prev$dp_period_assign_years <- (as.numeric(subset_natural_history_prev$dp_period_min) +
+                                               as.numeric(subset_natural_history_prev$dp_period_max))/2
+# EXCEPTION: Shimakawa baseline data depends on the recruitment period (1974-2008)
+# We know the follow-up lasted a median of 27 years and the later timepoint was 2013
+# Therefore, overwrite with assumed baseline dp_period of 1986 (2013-27)
+subset_natural_history_prev$dp_period_assign_years[subset_natural_history_prev$id_paper == "1" &
+                                                     subset_natural_history_prev$dp_period_min == "1974"] <- 1986
+
+
+# Save a subset of natural history prevalence dataset for use in model
+# NOTE: filtering out datapoints that are not directly applicable prevalence measurements
+# Need to come back to those later
+natural_history_prev_for_fitting <- select(subset_natural_history_prev,
+                                    id_paper,
+                                    id_group,
+                                    id_proc,
+                                    model_numerator,
+                                    model_denominator,
+                                    dp_period_assign_years,
+                                    sex,
+                                    age_assign_min_years,
+                                    age_assign_max_years,
+                                    prevalence,
+                                    prevalence_ci_lower,
+                                    prevalence_ci_upper,
+                                    sample_size) %>%
+  filter(is.na(model_denominator) == FALSE)
+
+# Turn number columns into numeric format
+natural_history_prev_for_fitting[,c(6,8:13)] <- apply(natural_history_prev_for_fitting[,c(6,8:13)], 2, 
+                                                 function(x) as.numeric(x))
+
+natural_history_prev_for_fitting <- cbind(prevalence_outcome = "Natural_history_prevalence",
+                                          natural_history_prev_for_fitting) %>%
+  arrange(sex, dp_period_assign_years, id_paper, id_group, age_assign_min_years)
+
+# Abbreviate model numerator and denominators
+natural_history_prev_for_fitting$model_numerator <- gsub("Immune tolerant", "IT", natural_history_prev_for_fitting$model_numerator, ignore.case = TRUE)
+natural_history_prev_for_fitting$model_numerator <- gsub("Immune reactive", "IR", natural_history_prev_for_fitting$model_numerator, ignore.case = TRUE)
+natural_history_prev_for_fitting$model_numerator <- gsub("Inactive carrier", "IC", natural_history_prev_for_fitting$model_numerator, ignore.case = TRUE)
+natural_history_prev_for_fitting$model_numerator <- gsub("Decompensated cirrhosis", "DCC", natural_history_prev_for_fitting$model_numerator, ignore.case = TRUE)
+natural_history_prev_for_fitting$model_numerator <- gsub("Compensated cirrhosis", "CC", natural_history_prev_for_fitting$model_numerator, ignore.case = TRUE)
+natural_history_prev_for_fitting$model_denominator <- gsub("Immune tolerant", "IT", natural_history_prev_for_fitting$model_denominator, ignore.case = TRUE)
+natural_history_prev_for_fitting$model_denominator <- gsub("Immune reactive", "IR", natural_history_prev_for_fitting$model_denominator, ignore.case = TRUE)
+natural_history_prev_for_fitting$model_denominator <- gsub("Inactive carrier", "IC", natural_history_prev_for_fitting$model_denominator, ignore.case = TRUE)
+natural_history_prev_for_fitting$model_denominator <- gsub("Decompensated cirrhosis", "DCC", natural_history_prev_for_fitting$model_denominator, ignore.case = TRUE)
+natural_history_prev_for_fitting$model_denominator <- gsub("Compensated cirrhosis", "CC", natural_history_prev_for_fitting$model_denominator, ignore.case = TRUE)
+
+# Replace spaces with underscores
+natural_history_prev_for_fitting$model_numerator <- gsub("[[:space:]]", "_", 
+                                                         natural_history_prev_for_fitting$model_numerator)
+natural_history_prev_for_fitting$model_denominator <- gsub("[[:space:]]", "_", 
+                                                         natural_history_prev_for_fitting$model_denominator)
+
+# Round ages down to the nearest 0.5 to match model output
+natural_history_prev_for_fitting$age_assign_min_years <- floor(natural_history_prev_for_fitting$age_assign_min_years/0.5)*0.5
+natural_history_prev_for_fitting$age_assign_max_years <- floor(natural_history_prev_for_fitting$age_assign_max_years/0.5)*0.5
+
+# Rename columns to match model output
+names(natural_history_prev_for_fitting)[names(natural_history_prev_for_fitting)=="dp_period_assign_years"] <- "time"
+names(natural_history_prev_for_fitting)[names(natural_history_prev_for_fitting)=="age_assign_min_years"] <- "age_min"
+names(natural_history_prev_for_fitting)[names(natural_history_prev_for_fitting)=="age_assign_max_years"] <- "age_max"
+names(natural_history_prev_for_fitting)[names(natural_history_prev_for_fitting)=="prevalence"] <- "value"
+names(natural_history_prev_for_fitting)[names(natural_history_prev_for_fitting)=="prevalence_ci_lower"] <- "ci_lower"
+names(natural_history_prev_for_fitting)[names(natural_history_prev_for_fitting)=="prevalence_ci_upper"] <- "ci_upper"
+
+#write.csv(natural_history_prev_for_fitting, file = here(outpath_hbvdata, "natural_history_prevalence.csv"), row.names = FALSE)
 
 
 ## Natural history progression rates in West Africa ----

@@ -3,7 +3,7 @@
 ### Clean input natural history data for The Gambia     ###
 ### Source: mapping review                              ###
 ###########################################################
-# Load packages and set directories
+# Load packages and set directories ----
 require(tidyr)  # for data processing
 require(dplyr)  # for data processing
 require(here)  # for setting working directory
@@ -175,6 +175,95 @@ ggplot(data = filter(subset_hbsag_prev, dp_period_vacc == "post-vacc"),
   scale_color_manual(values=c("#89C5DA", "#DA5724", "#74D944", "#CE50CA",
                               "#3F4921", "#D1A33D", "#8569D5", "#5F7FC7",
                               "#673770", "#38333E"))
+
+## HBeAg prevalence in The Gambia dataset ----
+# Age- and sex-specific dataset
+# This is only for HBeAg prevalence in carriers overall
+# (there is a separate dataset for liver disease patients)
+input_hbeag_prev <- read.csv(here(inpath_hbvdata,
+                                  "hbeag_prevalence.csv"),
+                             header = TRUE, check.names = FALSE,
+                             stringsAsFactors = FALSE)
+
+
+subset_hbeag_prev <- select(input_hbeag_prev,
+                            id_paper,
+                            id_group,
+                            id_proc,
+                            pop_group_clinical,
+                            pop_group_demographic,
+                            geographic_scope,
+                            location,
+                            recruitment_setting,
+                            study_link,
+                            dp_period,
+                            starts_with("age"),
+                            sex,
+                            proportion_male,
+                            vaccinated,
+                            hbeag_positive_prop,
+                            hbeag_positive_prop_ci_lower,
+                            hbeag_positive_prop_ci_upper,
+                            sample_size)
+
+## Processing
+
+# 1) Assign a specific age to each data point
+# Use mean age if available
+subset_hbeag_prev$age_assign_years <- subset_hbeag_prev$age_mean_years
+# Else use median age (may be estimated from frequency distribution)
+subset_hbeag_prev$age_assign_years[subset_hbeag_prev$age_assign_years == "NR"] <-
+  subset_hbeag_prev$age_median_years[subset_hbeag_prev$age_assign_years == "NR"]
+# Else use mid-point of age range
+subset_hbeag_prev$age_assign_years[subset_hbeag_prev$age_assign_years == "NR"] <-
+  (as.numeric(subset_hbeag_prev$age_min_years[subset_hbeag_prev$age_assign_years == "NR"]) +
+     as.numeric(subset_hbeag_prev$age_max_years[subset_hbeag_prev$age_assign_years == "NR"]) + 1)/2
+
+# 2) Assign a specific year to each data point
+# Split datapoint collection period column into minimum and maximum year
+subset_hbeag_prev <- subset_hbeag_prev %>%
+  separate(col = dp_period, into = c("dp_period_min", "dp_period_max"),
+           sep = "-", remove = FALSE) %>%
+  mutate(dp_period_max = coalesce(dp_period_max, dp_period_min)) 
+# Take mean of minimum and maximum time of data collection
+subset_hbeag_prev$dp_period_assign_years <- (as.numeric(subset_hbeag_prev$dp_period_min) +
+                                               as.numeric(subset_hbeag_prev$dp_period_max))/2
+
+# Save a subset of dataset for use in model
+hbeag_dataset_for_fitting <- select(subset_hbeag_prev,
+                                    id_paper,
+                                    id_group,
+                                    id_proc,
+                                    pop_group_clinical,
+                                    dp_period_assign_years,
+                                    sex,
+                                    age_assign_years,
+                                    hbeag_positive_prop, 
+                                    hbeag_positive_prop_ci_lower,
+                                    hbeag_positive_prop_ci_upper,
+                                    sample_size)
+
+# Turn number columns into numeric format
+hbeag_dataset_for_fitting[,c(5,7:11)] <- apply(hbeag_dataset_for_fitting[,c(5,7:11)], 2, 
+                                               function(x) as.numeric(x))
+
+hbeag_dataset_for_fitting <- cbind(prevalence_outcome = "HBeAg_prevalence",
+                                   hbeag_dataset_for_fitting) %>%
+  arrange(sex, dp_period_assign_years, id_paper, id_group, age_assign_years)
+# Replace spaces and dashes with underscores
+hbeag_dataset_for_fitting$pop_group_clinical <- gsub(" - |-|[[:space:]]", "_", 
+                                                     hbeag_dataset_for_fitting$pop_group_clinical)
+
+# Round ages down to the nearest 0.5 to match model output
+hbeag_dataset_for_fitting$age_assign_years <- floor(hbeag_dataset_for_fitting$age_assign_years/0.5)*0.5
+# Rename columns to match model output
+names(hbeag_dataset_for_fitting)[names(hbeag_dataset_for_fitting)=="dp_period_assign_years"] <- "time"
+names(hbeag_dataset_for_fitting)[names(hbeag_dataset_for_fitting)=="age_assign_years"] <- "age"
+names(hbeag_dataset_for_fitting)[names(hbeag_dataset_for_fitting)=="hbeag_positive_prop"] <- "value"
+names(hbeag_dataset_for_fitting)[names(hbeag_dataset_for_fitting)=="hbeag_positive_prop_ci_lower"] <- "ci_lower"
+names(hbeag_dataset_for_fitting)[names(hbeag_dataset_for_fitting)=="hbeag_positive_prop_ci_upper"] <- "ci_upper"
+
+#write.csv(hbeag_dataset_for_fitting, file = here(outpath_hbvdata, "hbeag_prevalence.csv"), row.names = FALSE)
 
 
 

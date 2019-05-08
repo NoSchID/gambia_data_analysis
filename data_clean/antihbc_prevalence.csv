@@ -54,10 +54,3 @@
 "Anti_HBc_prevalence","GMB5",1,"x","Hospital_patients_not_HBV_related",1989,"Mixed",5,0.335,NA,NA,250
 "Anti_HBc_prevalence","GMB5",1,"x","Hospital_patients_not_HBV_related",1989,"Mixed",7,0.465,NA,NA,117
 "Anti_HBc_prevalence","GMB5",1,"x","Hospital_patients_not_HBV_related",1989,"Mixed",9.5,0.6,NA,NA,64
-"Anti_HBc_prevalence","GMB17",1,"x","General_population",1991,"Mixed",4,0.348,NA,NA,117
-"Anti_HBc_prevalence","V8",2,"a","General_population",1995,"Mixed",12.5,0.75,NA,NA,205
-"Anti_HBc_prevalence","V8",2,"b","General_population",1995,"Mixed",12.5,0.9,NA,NA,103
-"Anti_HBc_prevalence","V8",2,"a","General_population",1995,"Mixed",17.5,0.78,NA,NA,107
-"Anti_HBc_prevalence","V8",2,"b","General_population",1995,"Mixed",17.5,0.94,NA,NA,56
-"Anti_HBc_prevalence","V9",2,"a","General_population",1999,"Mixed",17.5,0.7,NA,NA,141
-"Anti_HBc_prevalence","V9",2,"b","General_population",1999,"Mixed",17.5,0.95,NA,NA,96

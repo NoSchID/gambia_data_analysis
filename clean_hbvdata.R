@@ -134,11 +134,14 @@ names(hbsag_dataset_for_fitting)[names(hbsag_dataset_for_fitting)=="hbsag_positi
 #write.csv(hbsag_dataset_for_fitting, file = here(outpath_hbvdata, "hbsag_prevalence.csv"), row.names = FALSE)
 
 # Save a subset of anti-HBc prevalence dataset for use in model
+# We can only fit anti-HBc data as carriers+immunes until vaccination is introduced
+# Therefore need to remove datapoints after 1990 and after 1984 in Keneba or Manduar
 antihbc_dataset_for_fitting <- select(subset_hbsag_prev,
                                     id_paper,
                                     id_group,
                                     id_proc,
                                     pop_group_clinical,
+                                    location,
                                     dp_period_assign_years,
                                     sex,
                                     age_assign_years,
@@ -146,7 +149,12 @@ antihbc_dataset_for_fitting <- select(subset_hbsag_prev,
                                     antihbc_positive_prop_ci_lower,
                                     antihbc_positive_prop_ci_upper,
                                     sample_size) %>%
-  filter(antihbc_positive_prop != "DUPLICATE" & antihbc_positive_prop != "NR")
+  filter(antihbc_positive_prop != "DUPLICATE" & antihbc_positive_prop != "NR") %>%
+  filter(dp_period_assign_years < 1991 | 
+         (location == "Keneba" & dp_period_assign_years < 1985) |
+         (location == "Manduar" & dp_period_assign_years < 1985)) %>%
+  select(-location)
+           
 
 # Turn number columns into numeric format
 antihbc_dataset_for_fitting[,c(5,7:11)] <- apply(antihbc_dataset_for_fitting[,c(5,7:11)], 2, 
@@ -369,8 +377,9 @@ subset_natural_history_prev <- subset_natural_history_prev %>%
            sep = "-", remove = FALSE) %>%
   mutate(dp_period_max = coalesce(dp_period_max, dp_period_min)) 
 # Take mean of minimum and maximum time of data collection
-subset_natural_history_prev$dp_period_assign_years <- (as.numeric(subset_natural_history_prev$dp_period_min) +
-                                               as.numeric(subset_natural_history_prev$dp_period_max))/2
+# Round to nearest integer for simplicity
+subset_natural_history_prev$dp_period_assign_years <- round((as.numeric(subset_natural_history_prev$dp_period_min) +
+                                               as.numeric(subset_natural_history_prev$dp_period_max))/2,0)
 # EXCEPTION: Shimakawa baseline data depends on the recruitment period (1974-2008)
 # We know the follow-up lasted a median of 27 years and the later timepoint was 2013
 # Therefore, overwrite with assumed baseline dp_period of 1986 (2013-27)
@@ -398,30 +407,41 @@ natural_history_prev_for_fitting <- select(subset_natural_history_prev,
   filter(is.na(model_denominator) == FALSE)
 
 # Turn number columns into numeric format
-natural_history_prev_for_fitting[,c(6,8:13)] <- apply(natural_history_prev_for_fitting[,c(6,8:13)], 2, 
+natural_history_prev_for_fitting[,8:13] <- apply(natural_history_prev_for_fitting[,8:13], 2, 
                                                  function(x) as.numeric(x))
 
-natural_history_prev_for_fitting <- cbind(prevalence_outcome = "Natural_history_prevalence",
+# Define prevalence outcome for each row
+prevalence_outcome <- paste0(natural_history_prev_for_fitting$model_numerator, "_prevalence_in_", natural_history_prev_for_fitting$model_denominator)
+
+natural_history_prev_for_fitting <- cbind(prevalence_outcome = prevalence_outcome,
                                           natural_history_prev_for_fitting) %>%
-  arrange(sex, dp_period_assign_years, id_paper, id_group, age_assign_min_years)
+  arrange(sex, dp_period_assign_years, id_paper, id_group, age_assign_min_years) %>%
+  select(-model_numerator, -model_denominator)
 
 # Abbreviate model numerator and denominators
-natural_history_prev_for_fitting$model_numerator <- gsub("Immune tolerant", "IT", natural_history_prev_for_fitting$model_numerator, ignore.case = TRUE)
-natural_history_prev_for_fitting$model_numerator <- gsub("Immune reactive", "IR", natural_history_prev_for_fitting$model_numerator, ignore.case = TRUE)
-natural_history_prev_for_fitting$model_numerator <- gsub("Inactive carrier", "IC", natural_history_prev_for_fitting$model_numerator, ignore.case = TRUE)
-natural_history_prev_for_fitting$model_numerator <- gsub("Decompensated cirrhosis", "DCC", natural_history_prev_for_fitting$model_numerator, ignore.case = TRUE)
-natural_history_prev_for_fitting$model_numerator <- gsub("Compensated cirrhosis", "CC", natural_history_prev_for_fitting$model_numerator, ignore.case = TRUE)
-natural_history_prev_for_fitting$model_denominator <- gsub("Immune tolerant", "IT", natural_history_prev_for_fitting$model_denominator, ignore.case = TRUE)
-natural_history_prev_for_fitting$model_denominator <- gsub("Immune reactive", "IR", natural_history_prev_for_fitting$model_denominator, ignore.case = TRUE)
-natural_history_prev_for_fitting$model_denominator <- gsub("Inactive carrier", "IC", natural_history_prev_for_fitting$model_denominator, ignore.case = TRUE)
-natural_history_prev_for_fitting$model_denominator <- gsub("Decompensated cirrhosis", "DCC", natural_history_prev_for_fitting$model_denominator, ignore.case = TRUE)
-natural_history_prev_for_fitting$model_denominator <- gsub("Compensated cirrhosis", "CC", natural_history_prev_for_fitting$model_denominator, ignore.case = TRUE)
+natural_history_prev_for_fitting$prevalence_outcome <- gsub("Immune tolerant", "IT", natural_history_prev_for_fitting$prevalence_outcome, ignore.case = TRUE)
+natural_history_prev_for_fitting$prevalence_outcome <- gsub("Immune reactive", "IR", natural_history_prev_for_fitting$prevalence_outcome, ignore.case = TRUE)
+natural_history_prev_for_fitting$prevalence_outcome <- gsub("Inactive carrier", "IC", natural_history_prev_for_fitting$prevalence_outcome, ignore.case = TRUE)
+natural_history_prev_for_fitting$prevalence_outcome <- gsub("Decompensated cirrhosis", "DCC", natural_history_prev_for_fitting$prevalence_outcome, ignore.case = TRUE)
+natural_history_prev_for_fitting$prevalence_outcome <- gsub("Compensated cirrhosis", "CC", natural_history_prev_for_fitting$prevalence_outcome, ignore.case = TRUE)
 
 # Replace spaces with underscores
-natural_history_prev_for_fitting$model_numerator <- gsub("[[:space:]]", "_", 
-                                                         natural_history_prev_for_fitting$model_numerator)
-natural_history_prev_for_fitting$model_denominator <- gsub("[[:space:]]", "_", 
-                                                         natural_history_prev_for_fitting$model_denominator)
+natural_history_prev_for_fitting$prevalence_outcome <- gsub("[[:space:]]", "_", 
+                                                         natural_history_prev_for_fitting$prevalence_outcome)
+
+# Add output IDs based on numerator to ensure correct mapping:
+# Only separate compartment names by underscores and convert to lowercase
+natural_history_prev_for_fitting$id_output <- gsub("_prevalence.*", "", natural_history_prev_for_fitting$prevalence_outcome)
+natural_history_prev_for_fitting$id_output <- gsub("and_", "", natural_history_prev_for_fitting$id_output )
+natural_history_prev_for_fitting$id_output <- gsub(",", "", natural_history_prev_for_fitting$id_output)
+natural_history_prev_for_fitting$id_output <- tolower(natural_history_prev_for_fitting$id_output)
+
+# Create a unique identifier for each row from paper ID, group ID, timepoint and output ID
+natural_history_prev_for_fitting$id_unique <- paste0(natural_history_prev_for_fitting$id_paper, "_",
+                                                     natural_history_prev_for_fitting$id_group, "_",
+                                                     natural_history_prev_for_fitting$dp_period_assign_years, "_",
+                                                     natural_history_prev_for_fitting$id_output)
+natural_history_prev_for_fitting$id_output <- NULL
 
 # Round ages down to the nearest 0.5 to match model output
 natural_history_prev_for_fitting$age_assign_min_years <- floor(natural_history_prev_for_fitting$age_assign_min_years/0.5)*0.5

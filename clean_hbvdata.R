@@ -3,22 +3,51 @@
 ### Clean input natural history data for The Gambia     ###
 ### Source: mapping review                              ###
 ###########################################################
+
+#
 ## Load packages and set directories ----
 require(tidyr)  # for data processing
 require(dplyr)  # for data processing
 require(here)  # for setting working directory
 require(ggplot2)
+
 inpath_hbvdata <- "data_raw"
 outpath_hbvdata <- "data_clean"
 
-## HBsAg and anti-HBc prevalence in The Gambia dataset ----
-# Age- and sex-specific datasets
+## Load datasets ----
+
+# Gambia age- and sex-specific HBsAg and anti-HBc prevalence in the general population
 input_hbsag_antihbc_prev <- read.csv(here(inpath_hbvdata,
-                                  "hbsag_prevalence.csv"),
-                                  header = TRUE, check.names = FALSE,
-                                  stringsAsFactors = FALSE)
+                                          "hbsag_prevalence.csv"),
+                                     header = TRUE, check.names = FALSE,
+                                     stringsAsFactors = FALSE)
+
+# Gambia age- and sex-specific HBseAg prevalence in HBV carriers
+input_hbeag_prev <- read.csv(here(inpath_hbvdata,
+                                  "hbeag_prevalence.csv"),
+                             header = TRUE, check.names = FALSE,
+                             stringsAsFactors = FALSE)
+
+# Gambia other (natural history) prevalence data in HBV carriers
+input_natural_history_prev <- read.csv(here(inpath_hbvdata,
+                                            "natural_history_prevalence.csv"),
+                                       header = TRUE, check.names = FALSE,
+                                       stringsAsFactors = FALSE)
+
+# Natural history progression rates in West Africa
+input_progression_rates <- read.csv(here(inpath_hbvdata,
+                                         "natural_history_progression_rates.csv"),
+                                    header = TRUE, check.names = FALSE,
+                                    stringsAsFactors = FALSE)
+
+# Mother-to-child transmission risk in West Africa
+input_mtct_risk <- read.csv(here(inpath_hbvdata,
+                                  "mtct_risk.csv"),
+                                    header = TRUE, check.names = FALSE,
+                                    stringsAsFactors = FALSE)
 
 
+## HBsAg and anti-HBc prevalence in The Gambia dataset ----
 subset_hbsag_prev <- select(input_hbsag_antihbc_prev,
                             id_paper,
                             id_group,
@@ -228,15 +257,8 @@ ggplot(data = filter(subset_hbsag_prev, dp_period_vacc == "post-vacc"),
 
 
 ## HBeAg prevalence in The Gambia dataset ----
-# Age- and sex-specific dataset
 # This is only for HBeAg prevalence in carriers overall
 # (there is a separate dataset for liver disease patients)
-input_hbeag_prev <- read.csv(here(inpath_hbvdata,
-                                  "hbeag_prevalence.csv"),
-                             header = TRUE, check.names = FALSE,
-                             stringsAsFactors = FALSE)
-
-
 subset_hbeag_prev <- select(input_hbeag_prev,
                             id_paper,
                             id_group,
@@ -318,13 +340,8 @@ names(hbeag_dataset_for_fitting)[names(hbeag_dataset_for_fitting)=="hbeag_positi
 
 
 
-## Natural history prevalence dataset ----
+## Natural history prevalence dataset: leftover data ----
 # Here the age and timepoint assignment is different from sAg/anti-HBc/eAg datasets!
-input_natural_history_prev <- read.csv(here(inpath_hbvdata,
-                                          "natural_history_prevalence.csv"),
-                                     header = TRUE, check.names = FALSE,
-                                     stringsAsFactors = FALSE)
-
 subset_natural_history_prev <- select(input_natural_history_prev,
                             id_paper,
                             id_group,
@@ -430,17 +447,19 @@ natural_history_prev_for_fitting$prevalence_outcome <- gsub("[[:space:]]", "_",
                                                          natural_history_prev_for_fitting$prevalence_outcome)
 
 # Add output IDs based on numerator to ensure correct mapping:
-# Only separate compartment names by underscores and convert to lowercase
+# Only separate compartment names by underscores 
 natural_history_prev_for_fitting$id_output <- gsub("_prevalence.*", "", natural_history_prev_for_fitting$prevalence_outcome)
 natural_history_prev_for_fitting$id_output <- gsub("and_", "", natural_history_prev_for_fitting$id_output )
 natural_history_prev_for_fitting$id_output <- gsub(",", "", natural_history_prev_for_fitting$id_output)
-natural_history_prev_for_fitting$id_output <- tolower(natural_history_prev_for_fitting$id_output)
 
 # Create a unique identifier for each row from paper ID, group ID, timepoint and output ID
-natural_history_prev_for_fitting$id_unique <- paste0(natural_history_prev_for_fitting$id_paper, "_",
+# Convert to lowercase
+natural_history_prev_for_fitting$id_unique <- paste0("id_",
+                                                     natural_history_prev_for_fitting$id_paper, "_",
                                                      natural_history_prev_for_fitting$id_group, "_",
                                                      natural_history_prev_for_fitting$dp_period_assign_years, "_",
                                                      natural_history_prev_for_fitting$id_output)
+natural_history_prev_for_fitting$id_unique <- tolower(natural_history_prev_for_fitting$id_unique)
 natural_history_prev_for_fitting$id_output <- NULL
 
 # Round ages down to the nearest 0.5 to match model output
@@ -458,12 +477,7 @@ names(natural_history_prev_for_fitting)[names(natural_history_prev_for_fitting)=
 #write.csv(natural_history_prev_for_fitting, file = here(outpath_hbvdata, "natural_history_prevalence.csv"), row.names = FALSE)
 
 
-## Natural history progression rates in West Africa ----
-input_progression_rates <- read.csv(here(inpath_hbvdata,
-                                         "natural_history_progression_rates.csv"),
-                                    header = TRUE, check.names = FALSE,
-                                    stringsAsFactors = FALSE)
-
+## Natural history progression rates in West Africa: leftover input ----
 subset_progression_rates <- input_progression_rates %>%
   select(                   id_paper,
                             id_group,
@@ -575,3 +589,43 @@ prog_rates_for_fitting$denominator <- c("personyears in IT and IR",
                                              "personyears in S",
                                              "personyears in S")
 
+
+## Still need to do survival curves! ----
+## MTCT risk in West Africa: still need to work on  input ----
+# Split up into input and output datasets
+input_mtct_risk_for_input <- filter(input_mtct_risk, !grepl("output", modelling_notes))
+input_mtct_risk_for_output <- filter(input_mtct_risk, grepl("output", modelling_notes))
+
+mtct_risk_for_fitting <- select(input_mtct_risk_for_output,
+                                id_paper,
+                                id_group,
+                                id_proc,
+                                dp_period,
+                                vaccinated,
+                                mtct_risk_prop,
+                                mtct_risk_prop_ci_lower,
+                                mtct_risk_prop_ci_upper,
+                                sample_size)
+
+
+# Turn number columns into numeric format
+mtct_risk_for_fitting[,c("dp_period", "mtct_risk_prop", "mtct_risk_prop_ci_lower",
+                         "mtct_risk_prop_ci_upper", "sample_size")] <-
+  apply(mtct_risk_for_fitting[,c("dp_period", "mtct_risk_prop", "mtct_risk_prop_ci_lower",
+                                 "mtct_risk_prop_ci_upper", "sample_size")], 2, 
+        function(x) as.numeric(x))
+
+# Add outcome column
+mtct_risk_for_fitting <- cbind(outcome = "mtct_risk",
+                               mtct_risk_for_fitting) %>%
+  arrange(dp_period)
+
+# Rename columns to match model output
+names(mtct_risk_for_fitting)[names(mtct_risk_for_fitting)=="dp_period"] <- "time"
+names(mtct_risk_for_fitting)[names(mtct_risk_for_fitting)=="mtct_risk_prop"] <- "value"
+names(mtct_risk_for_fitting)[names(mtct_risk_for_fitting)=="mtct_risk_prop_ci_lower"] <- "ci_lower"
+names(mtct_risk_for_fitting)[names(mtct_risk_for_fitting)=="mtct_risk_prop_ci_upper"] <- "ci_upper"
+
+#write.csv(mtct_risk_for_fitting, file = here(outpath_hbvdata, "mtct_risk.csv"), row.names = FALSE)
+
+                              

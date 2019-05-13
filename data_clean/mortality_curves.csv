@@ -1,0 +1,9 @@
+"outcome","id_paper","id_group","id_proc","pop_group_clinical","start_period_assign_years","bl_age_min_years","bl_age_max_years","bl_age_mean_years","bl_age_sd_years","bl_age_median_years","bl_age_iqr_years","sex","time_interval_years","cum_risk","cum_risk_ci_lower","cum_risk_ci_upper","number_at_risk","sample_size"
+"shadow4_cum_mortality","A4",1,"x","Compensated cirrhosis patients - no HCC",2012,NA,NA,NA,NA,39,NA,"Mixed",0.5,0.325,NA,NA,NA,61
+"shadow5_cum_mortality","A1",1,"x","HCC patients",2012,NA,NA,NA,NA,39,NA,"Mixed",0.5,0.77,NA,NA,56,583
+"shadow5_cum_mortality","A1",1,"x","HCC patients",2012,NA,NA,NA,NA,39,NA,"Mixed",1,0.9,NA,NA,15,583
+"shadow5_cum_mortality","A1",1,"x","HCC patients",2012,NA,NA,NA,NA,39,NA,"Mixed",1.5,0.96,NA,NA,2,583
+"shadow6_cum_mortality","A3",1,"x","Cirrhosis patients - no HCC",2005,12,72,41.5,15.3,NA,NA,"Mixed",0.5,0.689,NA,NA,24,45
+"shadow6_cum_mortality","A3",1,"x","Cirrhosis patients - no HCC",2005,12,72,41.5,15.3,NA,NA,"Mixed",1,0.758,NA,NA,9,45
+"shadow6_cum_hcc_incidence","A3",1,"x","Cirrhosis patients - no HCC",2005,12,72,41.5,15.3,NA,NA,"Mixed",0.5,0.133,NA,NA,40,45
+"shadow6_cum_hcc_incidence","A3",1,"x","Cirrhosis patients - no HCC",2005,12,72,41.5,15.3,NA,NA,"Mixed",1,0.286,NA,NA,34,45

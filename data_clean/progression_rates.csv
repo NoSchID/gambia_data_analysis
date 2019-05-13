@@ -1,0 +1,13 @@
+"outcome","id_paper","id_group","id_proc","pop_group_clinical","start_period_assign_years","age_assign_years","fu_assign_years","bl_age_min_years","bl_age_max_years","bl_age_mean_years","bl_age_sd_years","bl_age_median_years","bl_age_iqr_years","bl_age_distribution_years","sex","rate_py","rate_py_ci_lower","rate_py_ci_upper","py_at_risk","sample_size"
+"shadow1ab_eag_loss","1",1,"x","Chronic HBV carriers",1985,11,28,0,NA,NA,NA,10.8,NA,NA,"Mixed",0.074,0.063,0.088,1912,173
+"shadow1a_hcc_incidence_m","1",1,"x","Chronic HBV carriers",1985,10,28,0,19,NA,NA,NA,NA,NA,"Male",0,NA,NA,1930,NA
+"shadow1b_hcc_incidence_m","1",1,"x","Chronic HBV carriers",1985,30,28,20,39,NA,NA,NA,NA,NA,"Male",0.001835,0.000824,0.004085,3270,NA
+"shadow1ab_hcc_incidence_f","1",1,"x","Chronic HBV carriers",1985,11,28,0,NA,NA,NA,10.8,NA,NA,"Female",0,NA,NA,5615,201
+"shadow1_dcc_incidence","1",1,"x","Chronic HBV carriers",1985,11,28,0,NA,NA,NA,10.8,NA,NA,"Mixed",0.000185,4.6e-05,0.000739,10815,405
+"shadow1_mortality_m","1",1,"x","Chronic HBV carriers",1985,11,28,0,NA,NA,NA,10.8,NA,NA,"Male",0.004808,0.003249,0.007115,5200,204
+"shadow1_mortality_f","1",1,"x","Chronic HBV carriers",1985,11,28,0,NA,NA,NA,10.8,NA,NA,"Female",0.003206,0.00202,0.005088,5615,201
+"shadow3_mortality","A6",1,"x","Cirrhosis patients with HCC",1983,38,6,12,82,38,NA,NA,NA,NA,"Mixed",0.3333,NA,NA,NA,116
+"shadow2_sag_loss","6",2,"x","Chronic HBV carriers",1978,2,7,0.25,2,NA,NA,NA,NA,NA,"Mixed",0,NA,NA,NA,21
+"gmb6_1_a_foi","GMB6",1,"a","General population",1980,3,4,0.5,4,NA,NA,NA,NA,NA,"Mixed",0.1155,NA,NA,NA,83
+"gmb6_1_b_foi","GMB6",1,"b","General population",1980,3,4,0.5,4,NA,NA,NA,NA,NA,"Mixed",0.3095,NA,NA,NA,31
+"gmb7_1_chronic_infection_incidence","GMB7",1,"x","Hospital patients not HBV-related",1981,2,1,0.083,6,1.73,NA,NA,NA,NA,"Mixed",0.07257,NA,NA,NA,195

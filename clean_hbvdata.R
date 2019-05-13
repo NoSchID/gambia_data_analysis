@@ -40,11 +40,20 @@ input_progression_rates <- read.csv(here(inpath_hbvdata,
                                     header = TRUE, check.names = FALSE,
                                     stringsAsFactors = FALSE)
 
+# Mortality curves in West Africa (time-to-event analysis)
+input_mortality_curves <- read.csv(here(inpath_hbvdata,
+                                         "natural_history_survival_curves.csv"),
+                                    header = TRUE, check.names = FALSE,
+                                    stringsAsFactors = FALSE)
+
+
 # Mother-to-child transmission risk in West Africa
 input_mtct_risk <- read.csv(here(inpath_hbvdata,
                                   "mtct_risk.csv"),
                                     header = TRUE, check.names = FALSE,
                                     stringsAsFactors = FALSE)
+
+
 
 
 ## HBsAg and anti-HBc prevalence in The Gambia dataset ----
@@ -486,6 +495,7 @@ subset_progression_rates <- input_progression_rates %>%
                             pop_group_demographic,
                             recruitment_period,
                             dp_period,
+                            country,
                             study_link,
                             study_details,
                             starts_with("bl_age"),
@@ -545,52 +555,156 @@ prog_rates_for_output$fu_assign_years <- round(as.numeric(prog_rates_for_output$
 
 # 3) Assign a specific start time for the cohort (first year of recruitment)
 prog_rates_for_output$start_period_assign_years <- substr(prog_rates_for_output$recruitment_period,1,4)
+# EXCEPTION: for Shimakawa cohort, assign 1985 as start period (2013-28)
+prog_rates_for_output$start_period_assign_years[prog_rates_for_output$id_paper == "1"] <- 1985
 
 # Subset for use in model
 prog_rates_for_fitting <- prog_rates_for_output %>%
   select(id_paper,
          id_group,
          id_proc,
+         pop_group_clinical,
          start_period_assign_years,
          age_assign_years,
          fu_assign_years,
          starts_with("bl_age"),
          sex,
-         pop_group_clinical,
-         model_prog_from,
-         model_prog_to,
          rate_py,
          rate_py_ci_lower,
          rate_py_ci_upper,
-         modelling_notes)
+         py_at_risk,
+         sample_size)
 
-prog_rates_for_fitting$numerator <- c("cum. incident transitions to IC and ENCHB",
-                                            "cum. incident HCC cases",
-                                            "cum. incident HCC cases",
-                                            "cum. incident HCC cases",
-                                            "cum. incident DCC cases - cum. transitions from DCC to HCC",
-                                            "cum. incident deaths from CC, DCC, HCC and background",
-                                            "cum. incident deaths from CC, DCC, HCC and background",
-                                            "cum. incident deaths from CC, DCC, HCC and background",
-                                            "cum. incident transitions from IC to R",
-                                            "cum. incident transitions from S to IT and S to R",
-                                            "cum. incident transitions from S to IT and S to R",
-                                            "cum. incident transitions from S to IT")
-prog_rates_for_fitting$denominator <- c("personyears in IT and IR",
-                                             "personyears in chronic compartments except HCC",
-                                             "personyears in chronic compartments except HCC",
-                                             "personyears in chronic compartments except HCC",
-                                             "personyears in chronic compartments except DCC and HCC",
-                                             "personyears in chronic compartments",
-                                             "personyears in chronic compartments",
-                                             "personyears in CC, DCC and HCC",
-                                             "personyears in IC",
-                                             "personyears in S",
-                                             "personyears in S",
-                                             "personyears in S")
+# Assign an outcome description which also serves as a unique ID
+prog_rates_for_fitting_outcome <- c("shadow1ab_eag_loss",
+                                    "shadow1a_hcc_incidence_m",
+                                    "shadow1b_hcc_incidence_m",
+                                    "shadow1ab_hcc_incidence_f",
+                                    "shadow1_dcc_incidence",
+                                    "shadow1_mortality_m",
+                                    "shadow1_mortality_f",
+                                    "shadow3_mortality",
+                                    "shadow2_sag_loss",
+                                    "gmb6_1_a_foi",
+                                    "gmb6_1_b_foi",
+                                    "gmb7_1_chronic_infection_incidence")
+
+length(prog_rates_for_fitting_outcome) == nrow(prog_rates_for_fitting)
+
+prog_rates_for_fitting <- cbind(outcome = prog_rates_for_fitting_outcome, prog_rates_for_fitting)
+
+# Turn number columns into numeric format
+prog_rates_for_fitting[,c(6:15,17:21)] <- apply(prog_rates_for_fitting[,c(6:15,17:21)], 2, 
+                                               function(x) as.numeric(x))
+
+#write.csv(prog_rates_for_fitting, file = here(outpath_hbvdata, "progression_rates.csv"), row.names = FALSE)
 
 
-## Still need to do survival curves! ----
+#prog_rates_for_fitting$numerator <- c("cum. incident transitions to IC and ENCHB",
+#                                            "cum. incident HCC cases",
+#                                            "cum. incident HCC cases",
+#                                            "cum. incident HCC cases",
+#                                            "cum. incident DCC cases - cum. transitions from DCC to HCC",
+#                                            "cum. incident deaths from CC, DCC, HCC and background",
+#                                            "cum. incident deaths from CC, DCC, HCC and background",
+#                                            "cum. incident deaths from CC, DCC, HCC and background",
+#                                            "cum. incident transitions from IC to R",
+#                                            "cum. incident transitions from S to IT and S to R",
+#                                            "cum. incident transitions from S to IT and S to R",
+#                                            "cum. incident transitions from S to IT")
+#prog_rates_for_fitting$denominator <- c("personyears in IT and IR",
+#                                             "personyears in chronic compartments except HCC",
+#                                             "personyears in chronic compartments except HCC",
+#                                             "personyears in chronic compartments except HCC",
+#                                             "personyears in chronic compartments except DCC and HCC",
+#                                             "personyears in chronic compartments",
+#                                             "personyears in chronic compartments",
+#                                             "personyears in CC, DCC and HCC",
+#                                             "personyears in IC",
+#                                             "personyears in S",
+#                                             "personyears in S",
+#                                             "personyears in S")
+
+
+## Mortality curves ----
+subset_mortality_curves <- input_mortality_curves %>%
+                            select(id_paper,
+                            id_group,
+                            id_proc,
+                            pop_group_clinical,
+                            recruitment_period,
+                            dp_period,
+                            country,
+                            study_link,
+                            study_details,
+                            starts_with("bl_age"),
+                            bl_hbsag_positive_prop,
+                            bl_hcc_proportion,
+                            bl_cirrhosis_proportion,
+                            sex,
+                            proportion_male,
+                            dp_description,
+                            model_prog_from,
+                            model_prog_to,
+                            time_interval_years,
+                            cum_risk,
+                            cum_risk_ci_lower,
+                            cum_risk_ci_upper,
+                            number_at_risk,
+                            sample_size,
+                            dp_details) 
+
+# Assign a specific start time for the cohort (first year of recruitment)
+# For A4 and A3, there is only 1 start year anyway
+# For A1, assign the midpoint of the recruitment period (2012)
+subset_mortality_curves$start_period_assign_years <- substr(subset_mortality_curves$recruitment_period,1,4)
+subset_mortality_curves$start_period_assign_years[subset_mortality_curves$id_paper == "A1"] <- 2012
+
+# No need to assign age because I'm assuming these are representative samples of the patient groups
+
+# For fitting, need to filter out time intervals that aren't multiples of 0.5
+# Subset for use in model
+mortality_curves_for_fitting <- subset_mortality_curves %>%
+  select(id_paper,
+         id_group,
+         id_proc,
+         pop_group_clinical,
+         start_period_assign_years,
+         starts_with("bl_age"),
+         sex,
+         dp_description,
+         time_interval_years,
+         cum_risk,
+         cum_risk_ci_lower,
+         cum_risk_ci_upper,
+         number_at_risk,
+         sample_size) %>%
+  filter(time_interval_years%%0.5 == 0)
+
+# Assign an outcome description which also serves as a unique ID
+mortality_curves_for_fitting_outcome <- c("shadow4_cum_mortality",
+                                          "shadow5_cum_mortality",
+                                          "shadow5_cum_mortality",
+                                          "shadow5_cum_mortality",
+                                          "shadow6_cum_mortality",
+                                          "shadow6_cum_mortality",
+                                          "shadow6_cum_hcc_incidence",
+                                          "shadow6_cum_hcc_incidence")
+
+length(mortality_curves_for_fitting_outcome) == nrow(mortality_curves_for_fitting)
+
+mortality_curves_for_fitting <- cbind(outcome = mortality_curves_for_fitting_outcome,
+                                      mortality_curves_for_fitting) %>%
+  select(-dp_description, - bl_age_distribution_years)
+
+# Turn number columns into numeric format
+mortality_curves_for_fitting[,c(6:12,14:19)] <- apply(mortality_curves_for_fitting[,c(6:12,14:19)], 2, 
+                                                function(x) as.numeric(x))
+
+#write.csv(mortality_curves_for_fitting, file = here(outpath_hbvdata, "mortality_curves.csv"), row.names = FALSE)
+
+
+
 ## MTCT risk in West Africa: still need to work on  input ----
 # Split up into input and output datasets
 input_mtct_risk_for_input <- filter(input_mtct_risk, !grepl("output", modelling_notes))

@@ -22,7 +22,7 @@ input_hbsag_antihbc_prev <- read.csv(here(inpath_hbvdata,
                                      header = TRUE, check.names = FALSE,
                                      stringsAsFactors = FALSE)
 
-# Gambia age- and sex-specific HBseAg prevalence in HBV carriers
+# Gambia age- and sex-specific HBeAg prevalence in HBV carriers
 input_hbeag_prev <- read.csv(here(inpath_hbvdata,
                                   "hbeag_prevalence.csv"),
                              header = TRUE, check.names = FALSE,
@@ -52,6 +52,19 @@ input_mtct_risk <- read.csv(here(inpath_hbvdata,
                                   "mtct_risk.csv"),
                                     header = TRUE, check.names = FALSE,
                                     stringsAsFactors = FALSE)
+
+# Risk of chronic carriage in West Africa
+input_chronic_carriage_risk <- read.csv(here(inpath_hbvdata,
+                                 "chronic_carriage_risk.csv"),
+                            header = TRUE, check.names = FALSE,
+                            stringsAsFactors = FALSE)
+
+
+# Gambia age- and sex-specific HBeAg prevalence in HBV carriers
+input_hbeag_prev_ld_patients <- read.csv(here(inpath_hbvdata,
+                                  "hbeag_prevalence_ld_patients.csv"),
+                             header = TRUE, check.names = FALSE,
+                             stringsAsFactors = FALSE)
 
 
 
@@ -267,7 +280,6 @@ ggplot(data = filter(subset_hbsag_prev, dp_period_vacc == "post-vacc"),
 
 ## HBeAg prevalence in The Gambia dataset ----
 # This is only for HBeAg prevalence in carriers overall
-# (there is a separate dataset for liver disease patients)
 subset_hbeag_prev <- select(input_hbeag_prev,
                             id_paper,
                             id_group,
@@ -430,14 +442,22 @@ natural_history_prev_for_fitting <- select(subset_natural_history_prev,
                                     prevalence_ci_lower,
                                     prevalence_ci_upper,
                                     sample_size) %>%
-  filter(is.na(model_denominator) == FALSE)
+  filter(id_paper != "A4")  # this data point belongs in the shadow model
 
 # Turn number columns into numeric format
 natural_history_prev_for_fitting[,8:13] <- apply(natural_history_prev_for_fitting[,8:13], 2, 
                                                  function(x) as.numeric(x))
 
+natural_history_prev_for_fitting$model_denominator[
+  natural_history_prev_for_fitting$id_paper == "GMB2"] <- "HCC"
+natural_history_prev_for_fitting$model_numerator[
+  natural_history_prev_for_fitting$id_paper == "GMB2"][1] <- "CC"
+natural_history_prev_for_fitting$model_numerator[
+  natural_history_prev_for_fitting$id_paper == "GMB2"][2] <- "DCC"
+
 # Define prevalence outcome for each row
 prevalence_outcome <- paste0(natural_history_prev_for_fitting$model_numerator, "_prevalence_in_", natural_history_prev_for_fitting$model_denominator)
+
 
 natural_history_prev_for_fitting <- cbind(prevalence_outcome = prevalence_outcome,
                                           natural_history_prev_for_fitting) %>%
@@ -450,6 +470,8 @@ natural_history_prev_for_fitting$prevalence_outcome <- gsub("Immune reactive", "
 natural_history_prev_for_fitting$prevalence_outcome <- gsub("Inactive carrier", "IC", natural_history_prev_for_fitting$prevalence_outcome, ignore.case = TRUE)
 natural_history_prev_for_fitting$prevalence_outcome <- gsub("Decompensated cirrhosis", "DCC", natural_history_prev_for_fitting$prevalence_outcome, ignore.case = TRUE)
 natural_history_prev_for_fitting$prevalence_outcome <- gsub("Compensated cirrhosis", "CC", natural_history_prev_for_fitting$prevalence_outcome, ignore.case = TRUE)
+
+natural_history_prev_for_fitting$prevalence_outcome <- tolower(natural_history_prev_for_fitting$prevalence_outcome)
 
 # Replace spaces with underscores
 natural_history_prev_for_fitting$prevalence_outcome <- gsub("[[:space:]]", "_", 
@@ -476,15 +498,108 @@ natural_history_prev_for_fitting$age_assign_min_years <- floor(natural_history_p
 natural_history_prev_for_fitting$age_assign_max_years <- floor(natural_history_prev_for_fitting$age_assign_max_years/0.5)*0.5
 
 # Rename columns to match model output
+names(natural_history_prev_for_fitting)[names(natural_history_prev_for_fitting)=="prevalence_outcome"] <- "outcome"
 names(natural_history_prev_for_fitting)[names(natural_history_prev_for_fitting)=="dp_period_assign_years"] <- "time"
 names(natural_history_prev_for_fitting)[names(natural_history_prev_for_fitting)=="age_assign_min_years"] <- "age_min"
 names(natural_history_prev_for_fitting)[names(natural_history_prev_for_fitting)=="age_assign_max_years"] <- "age_max"
-names(natural_history_prev_for_fitting)[names(natural_history_prev_for_fitting)=="prevalence"] <- "value"
+names(natural_history_prev_for_fitting)[names(natural_history_prev_for_fitting)=="prevalence"] <- "data_value"
 names(natural_history_prev_for_fitting)[names(natural_history_prev_for_fitting)=="prevalence_ci_lower"] <- "ci_lower"
 names(natural_history_prev_for_fitting)[names(natural_history_prev_for_fitting)=="prevalence_ci_upper"] <- "ci_upper"
 
-#write.csv(natural_history_prev_for_fitting, file = here(outpath_hbvdata, "natural_history_prevalence.csv"), row.names = FALSE)
+## HBeAg prevalence in Gambian liver disease patients ----
+subset_hbeag_prev_ld_patients <- select(input_hbeag_prev_ld_patients,
+                                        id_paper,
+                                        id_group,
+                                        id_proc,
+                                        pop_group_clinical,
+                                        pop_group_demographic,
+                                        geographic_scope,
+                                        location,
+                                        recruitment_setting,
+                                        study_link,
+                                        dp_period,
+                                        starts_with("age"),
+                                        sex,
+                                        proportion_male,
+                                        vaccinated,
+                                        hbeag_positive_prop,
+                                        hbeag_positive_prop_ci_lower,
+                                        hbeag_positive_prop_ci_upper,
+                                        sample_size)
 
+
+# 2) Assign a specific year to each data point
+# Split datapoint collection period column into minimum and maximum year
+subset_hbeag_prev_ld_patients <- subset_hbeag_prev_ld_patients%>%
+  separate(col = dp_period, into = c("dp_period_min", "dp_period_max"),
+           sep = "-", remove = FALSE) %>%
+  mutate(dp_period_max = coalesce(dp_period_max, dp_period_min)) 
+# Take mean of minimum and maximum time of data collection
+subset_hbeag_prev_ld_patients$dp_period_assign_years <- (as.numeric(subset_hbeag_prev_ld_patients$dp_period_min) +
+                                                           as.numeric(subset_hbeag_prev_ld_patients$dp_period_max))/2
+
+
+
+# Save a subset of dataset for use in model
+hbeag_ld_for_fitting <- select(subset_hbeag_prev_ld_patients,
+                               id_paper,
+                               id_group,
+                               id_proc,
+                               pop_group_clinical,
+                               dp_period_assign_years,
+                               sex,
+                               age_min_years,
+                               age_max_years,
+                               hbeag_positive_prop, 
+                               hbeag_positive_prop_ci_lower,
+                               hbeag_positive_prop_ci_upper,
+                               sample_size)
+
+
+
+# Turn number columns into numeric format
+hbeag_ld_for_fitting[,c(5,7:12)] <- apply(hbeag_ld_for_fitting[,c(5,7:12)], 2, 
+                                          function(x) as.numeric(x))
+
+# Assign outcome and remove pop group
+hbeag_ld_outcome <- c(rep("hbeag_prevalence_in_hcc",7),
+                      rep("hbeag_prevalence_in_cirrhosis",4))
+
+hbeag_ld_for_fitting <- cbind(outcome = hbeag_ld_outcome,
+                              hbeag_ld_for_fitting) %>%
+  arrange(sex, dp_period_assign_years, id_paper, id_group, age_min_years) %>%
+  select(-pop_group_clinical)
+
+
+# Add output IDs based on outcome to ensure correct mapping:
+# Only separate compartment names by underscores 
+hbeag_ld_for_fitting$id_output <- gsub("_prevalence_in", "", hbeag_ld_for_fitting$outcome)
+
+# Create a unique identifier for each row from paper ID, group ID, timepoint and output ID
+# Convert to lowercase
+hbeag_ld_for_fitting$id_unique <- paste0("id_",
+                                         hbeag_ld_for_fitting$id_paper, "_",
+                                         hbeag_ld_for_fitting$id_group, "_",
+                                         hbeag_ld_for_fitting$dp_period_assign_years, "_",
+                                         hbeag_ld_for_fitting$id_output)
+hbeag_ld_for_fitting$id_unique <- tolower(hbeag_ld_for_fitting$id_unique)
+hbeag_ld_for_fitting$id_output <- NULL
+
+# Rename columns to match model output
+names(hbeag_ld_for_fitting)[names(hbeag_ld_for_fitting)=="dp_period_assign_years"] <- "time"
+names(hbeag_ld_for_fitting)[names(hbeag_ld_for_fitting)=="age_min_years"] <- "age_min"
+names(hbeag_ld_for_fitting)[names(hbeag_ld_for_fitting)=="age_max_years"] <- "age_max"
+names(hbeag_ld_for_fitting)[names(hbeag_ld_for_fitting)=="hbeag_positive_prop"] <- "data_value"
+names(hbeag_ld_for_fitting)[names(hbeag_ld_for_fitting)=="hbeag_positive_prop_ci_lower"] <- "ci_lower"
+names(hbeag_ld_for_fitting)[names(hbeag_ld_for_fitting)=="hbeag_positive_prop_ci_upper"] <- "ci_upper"
+
+
+
+## Append HBeAg prevalence in LD patients to natural history prevalence dataset ----
+natural_history_prev_for_fitting <- rbind(natural_history_prev_for_fitting,
+                                          hbeag_ld_for_fitting)
+
+#write.csv(natural_history_prev_for_fitting, file = here(outpath_hbvdata, "natural_history_prevalence.csv"), row.names = FALSE)
 
 ## Natural history progression rates in West Africa: leftover input ----
 subset_progression_rates <- input_progression_rates %>%
@@ -743,3 +858,35 @@ names(mtct_risk_for_fitting)[names(mtct_risk_for_fitting)=="mtct_risk_prop_ci_up
 #write.csv(mtct_risk_for_fitting, file = here(outpath_hbvdata, "mtct_risk.csv"), row.names = FALSE)
 
                               
+## Risk of chronic carriage in West Africa ----
+prop_chronic_for_fitting <- select(input_chronic_carriage_risk,
+                                id_paper,
+                                id_group,
+                                id_proc,
+                                age_at_infection,
+                                p_chronic,
+                                p_chronic_ci_lower,
+                                p_chronic_ci_upper,
+                                sample_size)
+
+# Turn number columns into numeric format
+prop_chronic_for_fitting[,c(4:8)] <- apply(prop_chronic_for_fitting[,c(4:8)], 2, 
+                                           function(x) as.numeric(x))
+
+# Add outcome column
+prop_chronic_for_fitting <- cbind(outcome = "p_chronic",
+                                  prop_chronic_for_fitting)
+
+# Rename columns to match model output
+names(prop_chronic_for_fitting)[names(prop_chronic_for_fitting)=="age_at_infection"] <- "age"
+names(prop_chronic_for_fitting)[names(prop_chronic_for_fitting)=="p_chronic"] <- "data_value"
+names(prop_chronic_for_fitting)[names(prop_chronic_for_fitting)=="p_chronic_ci_lower"] <- "ci_lower"
+names(prop_chronic_for_fitting)[names(prop_chronic_for_fitting)=="p_chronic_ci_upper"] <- "ci_upper"
+
+# Round ages to the nearest 0.5
+prop_chronic_for_fitting$age <- floor(prop_chronic_for_fitting$age/0.5)*0.5
+
+#write.csv(prop_chronic_for_fitting, file = here(outpath_hbvdata, "risk_of_chronic_carriage.csv"), row.names = FALSE)
+
+
+

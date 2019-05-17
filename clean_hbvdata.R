@@ -60,13 +60,18 @@ input_chronic_carriage_risk <- read.csv(here(inpath_hbvdata,
                             stringsAsFactors = FALSE)
 
 
-# Gambia age- and sex-specific HBeAg prevalence in HBV carriers
+# Gambia age- and sex-specific HBeAg prevalence in cirrhosis and HCC patients
 input_hbeag_prev_ld_patients <- read.csv(here(inpath_hbvdata,
                                   "hbeag_prevalence_ld_patients.csv"),
                              header = TRUE, check.names = FALSE,
                              stringsAsFactors = FALSE)
 
 
+# Odds ratios
+input_odds_ratios <- read.csv(here(inpath_hbvdata,
+                                   "odds_ratios.csv"),
+                                         header = TRUE, check.names = FALSE,
+                                         stringsAsFactors = FALSE)
 
 
 ## HBsAg and anti-HBc prevalence in The Gambia dataset ----
@@ -441,19 +446,18 @@ natural_history_prev_for_fitting <- select(subset_natural_history_prev,
                                     prevalence,
                                     prevalence_ci_lower,
                                     prevalence_ci_upper,
-                                    sample_size) %>%
-  filter(id_paper != "A4")  # this data point belongs in the shadow model
+                                    sample_size) 
 
 # Turn number columns into numeric format
 natural_history_prev_for_fitting[,8:13] <- apply(natural_history_prev_for_fitting[,8:13], 2, 
                                                  function(x) as.numeric(x))
 
-natural_history_prev_for_fitting$model_denominator[
-  natural_history_prev_for_fitting$id_paper == "GMB2"] <- "HCC"
-natural_history_prev_for_fitting$model_numerator[
-  natural_history_prev_for_fitting$id_paper == "GMB2"][1] <- "CC"
-natural_history_prev_for_fitting$model_numerator[
-  natural_history_prev_for_fitting$id_paper == "GMB2"][2] <- "DCC"
+#natural_history_prev_for_fitting$model_denominator[
+#  natural_history_prev_for_fitting$id_paper == "GMB2"] <- "HCC"
+#natural_history_prev_for_fitting$model_numerator[
+#  natural_history_prev_for_fitting$id_paper == "GMB2"][1] <- "CC"
+#natural_history_prev_for_fitting$model_numerator[
+#  natural_history_prev_for_fitting$id_paper == "GMB2"][2] <- "DCC"
 
 # Define prevalence outcome for each row
 prevalence_outcome <- paste0(natural_history_prev_for_fitting$model_numerator, "_prevalence_in_", natural_history_prev_for_fitting$model_denominator)
@@ -482,6 +486,8 @@ natural_history_prev_for_fitting$prevalence_outcome <- gsub("[[:space:]]", "_",
 natural_history_prev_for_fitting$id_output <- gsub("_prevalence.*", "", natural_history_prev_for_fitting$prevalence_outcome)
 natural_history_prev_for_fitting$id_output <- gsub("and_", "", natural_history_prev_for_fitting$id_output )
 natural_history_prev_for_fitting$id_output <- gsub(",", "", natural_history_prev_for_fitting$id_output)
+natural_history_prev_for_fitting$id_output <- gsub("originating_", "", natural_history_prev_for_fitting$id_output)
+natural_history_prev_for_fitting$id_output[natural_history_prev_for_fitting$id_paper == "A4"] <- "shadow_incident_deaths"
 
 # Create a unique identifier for each row from paper ID, group ID, timepoint and output ID
 # Convert to lowercase
@@ -889,4 +895,48 @@ prop_chronic_for_fitting$age <- floor(prop_chronic_for_fitting$age/0.5)*0.5
 #write.csv(prop_chronic_for_fitting, file = here(outpath_hbvdata, "risk_of_chronic_carriage.csv"), row.names = FALSE)
 
 
+
+
+## Odds ratios ----
+odds_ratios <- input_odds_ratios
+
+# Assign year as mid-point for GLCS
+odds_ratios$dp_period_assign_years <- c(1999,1999,2013)
+
+# Assign minimum and maximum years
+# For GLCS this was calculated as mean +- 2*SD using controls and cases ages
+odds_ratios$age_assign_min_years <- c(15,15,8)
+odds_ratios$age_assign_max_years <- c(83.5,83.5,95.5)
+
+# Save a dataset for use in model
+odds_ratios_for_fitting <- select(odds_ratios,
+                                id_paper,
+                                id_group,
+                                id_proc,
+                                dp_period_assign_years,
+                                age_assign_min_years,
+                                age_assign_max_years,
+                                proportion_male,
+                                odds_ratio,
+                                odds_ratio_ci_lower,
+                                odds_ratio_ci_upper,
+                                sample_size)
+
+# Assign outcome description 
+odds_ratios_outcome <- tolower(paste0("odds_ratio_", odds_ratios$exposure, 
+                                      "_and_", odds_ratios$outcome))
+odds_ratios_outcome <- gsub(" ", "_", odds_ratios_outcome)
+
+odds_ratios_for_fitting <- cbind(outcome = odds_ratios_outcome,
+                                 odds_ratios_for_fitting)
+
+# Rename columns to match model output
+names(odds_ratios_for_fitting)[names(odds_ratios_for_fitting)=="dp_period_assign_years"] <- "time"
+names(odds_ratios_for_fitting)[names(odds_ratios_for_fitting)=="age_assign_min_years"] <- "age_min"
+names(odds_ratios_for_fitting)[names(odds_ratios_for_fitting)=="age_assign_max_years"] <- "age_max"
+names(odds_ratios_for_fitting)[names(odds_ratios_for_fitting)=="odds_ratio"] <- "data_value"
+names(odds_ratios_for_fitting)[names(odds_ratios_for_fitting)=="odds_ratio_ci_lower"] <- "ci_lower"
+names(odds_ratios_for_fitting)[names(odds_ratios_for_fitting)=="odds_ratio_ci_upper"] <- "ci_upper"
+
+#write.csv(odds_ratios_for_fitting, file = here(outpath_hbvdata, "odds_ratios.csv"), row.names = FALSE)
 

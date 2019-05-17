@@ -1,0 +1,4 @@
+"outcome","id_paper","id_group","id_proc","time","age_min","age_max","proportion_male","data_value","ci_lower","ci_upper","sample_size"
+"odds_ratio_current_hbeag_positivity_and_hcc","GMB15",1,"x",1999,15,83.5,0.83,3.2,0.7,15.3,186
+"odds_ratio_current_hbeag_positivity_and_cirrhosis","GMB15",1,"x",1999,15,83.5,0.8,6.2,1.1,34.1,113
+"odds_ratio_male_sex_and_significant_liver_fibrosis_or_cirrhosis","1",1,"x",2013,8,95.5,NA,5,1.67,10,271

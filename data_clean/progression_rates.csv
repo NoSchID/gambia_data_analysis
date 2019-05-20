@@ -1,4 +1,4 @@
-"outcome","id_paper","id_group","id_proc","pop_group_clinical","start_period_assign_years","age_assign_years","fu_assign_years","bl_age_min_years","bl_age_max_years","bl_age_mean_years","bl_age_sd_years","bl_age_median_years","bl_age_iqr_years","bl_age_distribution_years","sex","rate_py","rate_py_ci_lower","rate_py_ci_upper","py_at_risk","sample_size"
+"outcome","id_paper","id_group","id_proc","pop_group_clinical","start_period_assign_years","age_assign_years","fu_assign_years","bl_age_min_years","bl_age_max_years","bl_age_mean_years","bl_age_sd_years","bl_age_median_years","bl_age_iqr_years","bl_age_distribution_years","sex","data_value","ci_lower","ci_upper","py_at_risk","sample_size"
 "shadow1ab_eag_loss","1",1,"x","Chronic HBV carriers",1985,11,28,0,NA,NA,NA,10.8,NA,NA,"Mixed",0.074,0.063,0.088,1912,173
 "shadow1a_hcc_incidence_m","1",1,"x","Chronic HBV carriers",1985,10,28,0,19,NA,NA,NA,NA,NA,"Male",0,NA,NA,1930,NA
 "shadow1b_hcc_incidence_m","1",1,"x","Chronic HBV carriers",1985,30,28,20,39,NA,NA,NA,NA,NA,"Male",0.001835,0.000824,0.004085,3270,NA

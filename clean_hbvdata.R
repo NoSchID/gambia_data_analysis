@@ -3,8 +3,6 @@
 ### Clean input natural history data for The Gambia     ###
 ### Source: mapping review                              ###
 ###########################################################
-
-#
 ## Load packages and set directories ----
 require(tidyr)  # for data processing
 require(dplyr)  # for data processing
@@ -73,6 +71,20 @@ input_odds_ratios <- read.csv(here(inpath_hbvdata,
                                          header = TRUE, check.names = FALSE,
                                          stringsAsFactors = FALSE)
 
+# Infant vaccine efficacy against chronic carriage
+input_infant_vaccine_efficacy <- read.csv(here(inpath_hbvdata,
+                                          "infant_vaccine_efficacy.csv"),
+                                          header = TRUE, check.names = FALSE,
+                                          stringsAsFactors = FALSE)
+
+# PAF for association of HBsAg and HCC/cirrhosis
+input_paf_liver_disease <- read.csv(here(inpath_hbvdata,
+                                         "paf_liver_disease.csv"),
+                                          header = TRUE, check.names = FALSE,
+                                          stringsAsFactors = FALSE)
+
+
+#### CLEAN CALIBRATION DATASETS
 
 ## HBsAg and anti-HBc prevalence in The Gambia dataset ----
 subset_hbsag_prev <- select(input_hbsag_antihbc_prev,
@@ -171,7 +183,7 @@ hbsag_dataset_for_fitting <- select(subset_hbsag_prev,
 hbsag_dataset_for_fitting[,c(5,7:11)] <- apply(hbsag_dataset_for_fitting[,c(5,7:11)], 2, 
                                                function(x) as.numeric(x))
 
-hbsag_dataset_for_fitting <- cbind(prevalence_outcome = "HBsAg_prevalence",
+hbsag_dataset_for_fitting <- cbind(outcome = "HBsAg_prevalence",
                                    hbsag_dataset_for_fitting) %>%
   arrange(sex, dp_period_assign_years, id_paper, id_group, age_assign_years)
 # Replace spaces and dashes with underscores
@@ -183,7 +195,7 @@ hbsag_dataset_for_fitting$age_assign_years <- floor(hbsag_dataset_for_fitting$ag
 # Rename columns to match model output
 names(hbsag_dataset_for_fitting)[names(hbsag_dataset_for_fitting)=="dp_period_assign_years"] <- "time"
 names(hbsag_dataset_for_fitting)[names(hbsag_dataset_for_fitting)=="age_assign_years"] <- "age"
-names(hbsag_dataset_for_fitting)[names(hbsag_dataset_for_fitting)=="hbsag_positive_prop"] <- "value"
+names(hbsag_dataset_for_fitting)[names(hbsag_dataset_for_fitting)=="hbsag_positive_prop"] <- "data_value"
 names(hbsag_dataset_for_fitting)[names(hbsag_dataset_for_fitting)=="hbsag_positive_prop_ci_lower"] <- "ci_lower"
 names(hbsag_dataset_for_fitting)[names(hbsag_dataset_for_fitting)=="hbsag_positive_prop_ci_upper"] <- "ci_upper"
 
@@ -216,7 +228,7 @@ antihbc_dataset_for_fitting <- select(subset_hbsag_prev,
 antihbc_dataset_for_fitting[,c(5,7:11)] <- apply(antihbc_dataset_for_fitting[,c(5,7:11)], 2, 
                                                function(x) as.numeric(x))
 
-antihbc_dataset_for_fitting <- cbind(prevalence_outcome = "Anti_HBc_prevalence",
+antihbc_dataset_for_fitting <- cbind(outcome = "Anti_HBc_prevalence",
                                    antihbc_dataset_for_fitting) %>%
   arrange(sex, dp_period_assign_years, id_paper, id_group, age_assign_years)
 # Replace spaces and dashes with underscores
@@ -228,7 +240,7 @@ antihbc_dataset_for_fitting$age_assign_years <- floor(antihbc_dataset_for_fittin
 # Rename columns to match model output
 names(antihbc_dataset_for_fitting)[names(antihbc_dataset_for_fitting)=="dp_period_assign_years"] <- "time"
 names(antihbc_dataset_for_fitting)[names(antihbc_dataset_for_fitting)=="age_assign_years"] <- "age"
-names(antihbc_dataset_for_fitting)[names(antihbc_dataset_for_fitting)=="antihbc_positive_prop"] <- "value"
+names(antihbc_dataset_for_fitting)[names(antihbc_dataset_for_fitting)=="antihbc_positive_prop"] <- "data_value"
 names(antihbc_dataset_for_fitting)[names(antihbc_dataset_for_fitting)=="antihbc_positive_prop_ci_lower"] <- "ci_lower"
 names(antihbc_dataset_for_fitting)[names(antihbc_dataset_for_fitting)=="antihbc_positive_prop_ci_upper"] <- "ci_upper"
 
@@ -346,7 +358,7 @@ hbeag_dataset_for_fitting <- select(subset_hbeag_prev,
 hbeag_dataset_for_fitting[,c(5,7:11)] <- apply(hbeag_dataset_for_fitting[,c(5,7:11)], 2, 
                                                function(x) as.numeric(x))
 
-hbeag_dataset_for_fitting <- cbind(prevalence_outcome = "HBeAg_prevalence",
+hbeag_dataset_for_fitting <- cbind(outcome = "HBeAg_prevalence",
                                    hbeag_dataset_for_fitting) %>%
   arrange(sex, dp_period_assign_years, id_paper, id_group, age_assign_years)
 # Replace spaces and dashes with underscores
@@ -358,7 +370,7 @@ hbeag_dataset_for_fitting$age_assign_years <- floor(hbeag_dataset_for_fitting$ag
 # Rename columns to match model output
 names(hbeag_dataset_for_fitting)[names(hbeag_dataset_for_fitting)=="dp_period_assign_years"] <- "time"
 names(hbeag_dataset_for_fitting)[names(hbeag_dataset_for_fitting)=="age_assign_years"] <- "age"
-names(hbeag_dataset_for_fitting)[names(hbeag_dataset_for_fitting)=="hbeag_positive_prop"] <- "value"
+names(hbeag_dataset_for_fitting)[names(hbeag_dataset_for_fitting)=="hbeag_positive_prop"] <- "data_value"
 names(hbeag_dataset_for_fitting)[names(hbeag_dataset_for_fitting)=="hbeag_positive_prop_ci_lower"] <- "ci_lower"
 names(hbeag_dataset_for_fitting)[names(hbeag_dataset_for_fitting)=="hbeag_positive_prop_ci_upper"] <- "ci_upper"
 
@@ -366,7 +378,7 @@ names(hbeag_dataset_for_fitting)[names(hbeag_dataset_for_fitting)=="hbeag_positi
 
 
 
-## Natural history prevalence dataset: leftover data ----
+# Natural history prevalence dataset ----
 # Here the age and timepoint assignment is different from sAg/anti-HBc/eAg datasets!
 subset_natural_history_prev <- select(input_natural_history_prev,
                             id_paper,
@@ -512,7 +524,7 @@ names(natural_history_prev_for_fitting)[names(natural_history_prev_for_fitting)=
 names(natural_history_prev_for_fitting)[names(natural_history_prev_for_fitting)=="prevalence_ci_lower"] <- "ci_lower"
 names(natural_history_prev_for_fitting)[names(natural_history_prev_for_fitting)=="prevalence_ci_upper"] <- "ci_upper"
 
-## HBeAg prevalence in Gambian liver disease patients ----
+# HBeAg prevalence in Gambian liver disease patients ----
 subset_hbeag_prev_ld_patients <- select(input_hbeag_prev_ld_patients,
                                         id_paper,
                                         id_group,
@@ -607,9 +619,9 @@ natural_history_prev_for_fitting <- rbind(natural_history_prev_for_fitting,
 
 #write.csv(natural_history_prev_for_fitting, file = here(outpath_hbvdata, "natural_history_prevalence.csv"), row.names = FALSE)
 
-## Natural history progression rates in West Africa: leftover input ----
+## Natural history progression rates in West Africa ----
 subset_progression_rates <- input_progression_rates %>%
-  select(                   id_paper,
+                            select(id_paper,
                             id_group,
                             id_proc,
                             pop_group_clinical,
@@ -718,34 +730,12 @@ prog_rates_for_fitting <- cbind(outcome = prog_rates_for_fitting_outcome, prog_r
 prog_rates_for_fitting[,c(6:15,17:21)] <- apply(prog_rates_for_fitting[,c(6:15,17:21)], 2, 
                                                function(x) as.numeric(x))
 
+# Change column names
+names(prog_rates_for_fitting)[names(prog_rates_for_fitting)=="rate_py"] <- "data_value"
+names(prog_rates_for_fitting)[names(prog_rates_for_fitting)=="rate_py_ci_lower"] <- "ci_lower"
+names(prog_rates_for_fitting)[names(prog_rates_for_fitting)=="rate_py_ci_upper"] <- "ci_upper"
+
 #write.csv(prog_rates_for_fitting, file = here(outpath_hbvdata, "progression_rates.csv"), row.names = FALSE)
-
-
-#prog_rates_for_fitting$numerator <- c("cum. incident transitions to IC and ENCHB",
-#                                            "cum. incident HCC cases",
-#                                            "cum. incident HCC cases",
-#                                            "cum. incident HCC cases",
-#                                            "cum. incident DCC cases - cum. transitions from DCC to HCC",
-#                                            "cum. incident deaths from CC, DCC, HCC and background",
-#                                            "cum. incident deaths from CC, DCC, HCC and background",
-#                                            "cum. incident deaths from CC, DCC, HCC and background",
-#                                            "cum. incident transitions from IC to R",
-#                                            "cum. incident transitions from S to IT and S to R",
-#                                            "cum. incident transitions from S to IT and S to R",
-#                                            "cum. incident transitions from S to IT")
-#prog_rates_for_fitting$denominator <- c("personyears in IT and IR",
-#                                             "personyears in chronic compartments except HCC",
-#                                             "personyears in chronic compartments except HCC",
-#                                             "personyears in chronic compartments except HCC",
-#                                             "personyears in chronic compartments except DCC and HCC",
-#                                             "personyears in chronic compartments",
-#                                             "personyears in chronic compartments",
-#                                             "personyears in CC, DCC and HCC",
-#                                             "personyears in IC",
-#                                             "personyears in S",
-#                                             "personyears in S",
-#                                             "personyears in S")
-
 
 ## Mortality curves ----
 subset_mortality_curves <- input_mortality_curves %>%
@@ -822,11 +812,13 @@ mortality_curves_for_fitting <- cbind(outcome = mortality_curves_for_fitting_out
 mortality_curves_for_fitting[,c(6:12,14:19)] <- apply(mortality_curves_for_fitting[,c(6:12,14:19)], 2, 
                                                 function(x) as.numeric(x))
 
+names(mortality_curves_for_fitting)[names(mortality_curves_for_fitting)=="cum_risk"] <- "data_value"
+names(mortality_curves_for_fitting)[names(mortality_curves_for_fitting)=="cum_risk_ci_lower"] <- "ci_lower"
+names(mortality_curves_for_fitting)[names(mortality_curves_for_fitting)=="cum_risk_ci_upper"] <- "ci_upper"
+
 #write.csv(mortality_curves_for_fitting, file = here(outpath_hbvdata, "mortality_curves.csv"), row.names = FALSE)
 
-
-
-## MTCT risk in West Africa: still need to work on  input ----
+## MTCT risk in West Africa ----
 # Split up into input and output datasets
 input_mtct_risk_for_input <- filter(input_mtct_risk, !grepl("output", modelling_notes))
 input_mtct_risk_for_output <- filter(input_mtct_risk, grepl("output", modelling_notes))
@@ -939,4 +931,16 @@ names(odds_ratios_for_fitting)[names(odds_ratios_for_fitting)=="odds_ratio_ci_lo
 names(odds_ratios_for_fitting)[names(odds_ratios_for_fitting)=="odds_ratio_ci_upper"] <- "ci_upper"
 
 #write.csv(odds_ratios_for_fitting, file = here(outpath_hbvdata, "odds_ratios.csv"), row.names = FALSE)
+
+
+
+#### INPUT DATASETS
+input_prog_rates_for_input <- filter(input_progression_rates, modelling_use == "input")
+input_mtct_risk_for_input
+input_infant_vaccine_efficacy
+input_paf_liver_disease
+
+#write.csv(input_prog_rates_for_input, file = here(outpath_hbvdata, "input_progression_rates.csv"), row.names = FALSE)
+#write.csv(input_mtct_risk_for_input, file = here(outpath_hbvdata, "input_mtct_risk.csv"), row.names = FALSE)
+
 

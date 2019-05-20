@@ -1,4 +1,4 @@
-"prevalence_outcome","id_paper","id_group","id_proc","pop_group_clinical","time","sex","age","value","ci_lower","ci_upper","sample_size"
+"outcome","id_paper","id_group","id_proc","pop_group_clinical","time","sex","age","data_value","ci_lower","ci_upper","sample_size"
 "Anti_HBc_prevalence","GMB12",4,"b","General_population",1982,"Female",30.5,0.95,NA,NA,265
 "Anti_HBc_prevalence","GMB5",2,"x","Blood_donors",1989,"Male",36,0.904,NA,NA,260
 "Anti_HBc_prevalence","GMB16",1,"a","General_population",1980,"Mixed",1,0.11,NA,NA,40

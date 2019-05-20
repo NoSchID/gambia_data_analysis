@@ -1,4 +1,4 @@
-"prevalence_outcome","id_paper","id_group","id_proc","pop_group_clinical","time","sex","age","value","ci_lower","ci_upper","sample_size"
+"outcome","id_paper","id_group","id_proc","pop_group_clinical","time","sex","age","data_value","ci_lower","ci_upper","sample_size"
 "HBeAg_prevalence","GMB16",2,"a","HBsAg_positive_general_population",1980,"Female",46,0,NA,NA,11
 "HBeAg_prevalence","GMB16",2,"b","HBsAg_positive_general_population",1980,"Female",46,0.2,NA,NA,20
 "HBeAg_prevalence","GMB12",4,"b","HBsAg_positive_general_population",1982,"Female",30.5,0.276,NA,NA,29

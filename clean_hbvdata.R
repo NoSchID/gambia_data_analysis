@@ -645,15 +645,14 @@ subset_progression_rates <- input_progression_rates %>%
                             sample_size,
                             starts_with("follow_up"),
                             dp_details,
-                            modelling_use,
                             modelling_notes) %>%
   mutate(rate_py = rate_100py/100,  # Convert rate per 100 person-years to per person-year
          rate_py_ci_lower = as.numeric(rate_100py_ci_lower)/100,
          rate_py_ci_upper = as.numeric(rate_100py_ci_upper)/100)
 
 # Split into 2 datasets based on use as input or output within model
-prog_rates_for_input <- filter(subset_progression_rates, modelling_use == "input")
-prog_rates_for_output <- filter(subset_progression_rates, modelling_use == "output")
+prog_rates_for_input <- subset(subset_progression_rates, grepl("Input.*", subset_progression_rates$modelling_notes))
+prog_rates_for_output <- subset(subset_progression_rates, !grepl("Input.*", subset_progression_rates$modelling_notes))
 
 # Output dataset (to fit to)
 # 1) Assign a specific age to each data point
@@ -709,10 +708,14 @@ prog_rates_for_fitting <- prog_rates_for_output %>%
          sample_size)
 
 # Assign an outcome description which also serves as a unique ID
-prog_rates_for_fitting_outcome <- c("shadow1ab_eag_loss",
+prog_rates_for_fitting_outcome <- c("shadow1a_eag_loss_m",
+                                    "shadow1b_eag_loss_m",
+                                    "shadow1a_eag_loss_f",
+                                    "shadow1b_eag_loss_f",
                                     "shadow1a_hcc_incidence_m",
                                     "shadow1b_hcc_incidence_m",
-                                    "shadow1ab_hcc_incidence_f",
+                                    "shadow1a_hcc_incidence_f",
+                                    "shadow1b_hcc_incidence_f",
                                     "shadow1_dcc_incidence",
                                     "shadow1_mortality_m",
                                     "shadow1_mortality_f",
@@ -849,7 +852,7 @@ mtct_risk_for_fitting <- cbind(outcome = "mtct_risk",
 
 # Rename columns to match model output
 names(mtct_risk_for_fitting)[names(mtct_risk_for_fitting)=="dp_period"] <- "time"
-names(mtct_risk_for_fitting)[names(mtct_risk_for_fitting)=="mtct_risk_prop"] <- "value"
+names(mtct_risk_for_fitting)[names(mtct_risk_for_fitting)=="mtct_risk_prop"] <- "data_value"
 names(mtct_risk_for_fitting)[names(mtct_risk_for_fitting)=="mtct_risk_prop_ci_lower"] <- "ci_lower"
 names(mtct_risk_for_fitting)[names(mtct_risk_for_fitting)=="mtct_risk_prop_ci_upper"] <- "ci_upper"
 

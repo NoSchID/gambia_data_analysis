@@ -1,8 +1,12 @@
 "outcome","id_paper","id_group","id_proc","pop_group_clinical","start_period_assign_years","age_assign_years","fu_assign_years","bl_age_min_years","bl_age_max_years","bl_age_mean_years","bl_age_sd_years","bl_age_median_years","bl_age_iqr_years","bl_age_distribution_years","sex","data_value","ci_lower","ci_upper","py_at_risk","sample_size"
-"shadow1ab_eag_loss","1",1,"x","Chronic HBV carriers",1985,11,28,0,NA,NA,NA,10.8,NA,NA,"Mixed",0.074,0.063,0.088,1912,173
-"shadow1a_hcc_incidence_m","1",1,"x","Chronic HBV carriers",1985,10,28,0,19,NA,NA,NA,NA,NA,"Male",0,NA,NA,1930,NA
-"shadow1b_hcc_incidence_m","1",1,"x","Chronic HBV carriers",1985,30,28,20,39,NA,NA,NA,NA,NA,"Male",0.001835,0.000824,0.004085,3270,NA
-"shadow1ab_hcc_incidence_f","1",1,"x","Chronic HBV carriers",1985,11,28,0,NA,NA,NA,10.8,NA,NA,"Female",0,NA,NA,5615,201
+"shadow1a_eag_loss_m","1",1,"x","Chronic HBV carriers",1985,10,28,0,19,NA,NA,NA,NA,NA,"Male",0.074,0.063,0.088,1912,173
+"shadow1b_eag_loss_m","1",1,"x","Chronic HBV carriers",1985,30,28,20,39,NA,NA,NA,NA,NA,"Male",0.074,0.063,0.088,1912,173
+"shadow1a_eag_loss_f","1",1,"x","Chronic HBV carriers",1985,11,28,0,19,NA,NA,10.8,NA,NA,"Female",0.074,0.063,0.088,1912,173
+"shadow1b_eag_loss_f","1",1,"x","Chronic HBV carriers",1985,11,28,20,39,NA,NA,10.8,NA,NA,"Female",0.074,0.063,0.088,1912,173
+"shadow1a_hcc_incidence_m","1",1,"x","Chronic HBV carriers",1985,10,28,0,19,NA,NA,NA,NA,NA,"Male",0,NA,NA,1930,102
+"shadow1b_hcc_incidence_m","1",1,"x","Chronic HBV carriers",1985,30,28,20,39,NA,NA,NA,NA,NA,"Male",0.001835,0.000824,0.004085,3270,102
+"shadow1a_hcc_incidence_f","1",1,"x","Chronic HBV carriers",1985,10,28,0,19,NA,NA,NA,NA,NA,"Female",0,NA,NA,2078,100
+"shadow1b_hcc_incidence_f","1",1,"x","Chronic HBV carriers",1985,30,28,20,39,NA,NA,NA,NA,NA,"Female",0,NA,NA,3537,101
 "shadow1_dcc_incidence","1",1,"x","Chronic HBV carriers",1985,11,28,0,NA,NA,NA,10.8,NA,NA,"Mixed",0.000185,4.6e-05,0.000739,10815,405
 "shadow1_mortality_m","1",1,"x","Chronic HBV carriers",1985,11,28,0,NA,NA,NA,10.8,NA,NA,"Male",0.004808,0.003249,0.007115,5200,204
 "shadow1_mortality_f","1",1,"x","Chronic HBV carriers",1985,11,28,0,NA,NA,NA,10.8,NA,NA,"Female",0.003206,0.00202,0.005088,5615,201

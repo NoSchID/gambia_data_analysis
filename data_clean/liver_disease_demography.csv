@@ -1,0 +1,5 @@
+"outcome","id_paper","id_group","id_proc","pop_group_clinical","time","data_value","ci_lower","ci_upper","sample_size"
+"hcc_prop_male","GMB15",1,"x","HBsAg-positive HCC patients",1999,0.84,NA,NA,129
+"cirrhosis_prop_male","GMB15",1,"x","HBsAg-positive cirrhosis patients",1999,0.77,NA,NA,53
+"hcc_mean_age","GMB15",1,"x","HBsAg-positive HCC patients",1999,42,40,44,129
+"cirrhosis_mean_age","GMB15",1,"x","HBsAg-positive cirrhosis patients",1999,39,36,42,53

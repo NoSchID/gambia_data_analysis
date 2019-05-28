@@ -83,6 +83,12 @@ input_paf_liver_disease <- read.csv(here(inpath_hbvdata,
                                           header = TRUE, check.names = FALSE,
                                           stringsAsFactors = FALSE)
 
+# Mean age and proportion male in HBV-related liver disease patient samples
+input_liver_disease_demography <- read.csv(here(inpath_hbvdata,
+                                         "liver_disease_demography.csv"),
+                                    header = TRUE, check.names = FALSE,
+                                    stringsAsFactors = FALSE)
+
 
 #### CLEAN CALIBRATION DATASETS
 
@@ -946,4 +952,57 @@ input_paf_liver_disease
 #write.csv(input_prog_rates_for_input, file = here(outpath_hbvdata, "input_progression_rates.csv"), row.names = FALSE)
 #write.csv(input_mtct_risk_for_input, file = here(outpath_hbvdata, "input_mtct_risk.csv"), row.names = FALSE)
 
+
+
+## Mean age and proportion male in HBV-related liver disease ----
+# Assign midpoint of study period: 1999 (GLCS)
+input_liver_disease_demography$dp_period_assign_years <- as.numeric(1999)
+
+# Split proportion male and mean age into different rows
+liver_disease_demography_age <- select(input_liver_disease_demography,
+                                       -proportion_male)
+liver_disease_demography_sex <- select(input_liver_disease_demography,
+                                       -age_mean_years, 
+                                       -age_mean_years_ci_lower,
+                                       -age_mean_years_ci_upper)
+# Add outcome for identification
+liver_disease_demography_age$outcome <- c("hcc_mean_age", "cirrhosis_mean_age")
+liver_disease_demography_sex$outcome <- c("hcc_prop_male", "cirrhosis_prop_male")
+
+# Rename columns
+names(liver_disease_demography_age)[
+  names(liver_disease_demography_age)=="age_mean_years"] <- "data_value"
+names(liver_disease_demography_age)[
+  names(liver_disease_demography_age)=="age_mean_years_ci_lower"] <- "ci_lower"
+names(liver_disease_demography_age)[
+  names(liver_disease_demography_age)=="age_mean_years_ci_upper"] <- "ci_upper"
+names(liver_disease_demography_sex)[
+  names(liver_disease_demography_sex)=="proportion_male"] <- "data_value"
+
+# Add empty confidence interval columns for proportion male and reorder into right position
+liver_disease_demography_sex$ci_lower <- NA
+liver_disease_demography_sex$ci_upper <- NA
+liver_disease_demography_sex <- liver_disease_demography_sex[,c(1:23,29,30,24:28)]
+
+liver_disease_demography <- rbind(liver_disease_demography_sex, liver_disease_demography_age)
+
+# Save smaller dataset for fitting
+liver_disease_demography_for_fitting <- select(liver_disease_demography,
+                                               outcome,
+                                               id_paper,
+                                               id_group,
+                                               id_proc,
+                                               pop_group_clinical,
+                                               dp_period_assign_years,
+                                               data_value,
+                                               ci_lower,
+                                               ci_upper,
+                                               sample_size)
+
+
+# Rename columns to match model output
+names(liver_disease_demography_for_fitting)[
+  names(liver_disease_demography_for_fitting)=="dp_period_assign_years"] <- "time"
+
+]write.csv(liver_disease_demography_for_fitting, file = here(outpath_hbvdata, "liver_disease_demography.csv"), row.names = FALSE)
 

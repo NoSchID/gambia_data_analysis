@@ -97,6 +97,8 @@ subset_hbsag_prev <- select(input_hbsag_antihbc_prev,
                             id_paper,
                             id_group,
                             id_proc,
+                            paper_first_author,
+                            paper_year,
                             pop_group_clinical,
                             pop_group_demographic,
                             geographic_scope,
@@ -175,7 +177,11 @@ hbsag_dataset_for_fitting <- select(subset_hbsag_prev,
                                     id_paper,
                                     id_group,
                                     id_proc,
+                                    paper_first_author,
+                                    paper_year,
                                     pop_group_clinical,
+                                    geographic_scope,
+                                    study_link,
                                     dp_period_assign_years,
                                     sex,
                                     age_assign_years,
@@ -186,7 +192,7 @@ hbsag_dataset_for_fitting <- select(subset_hbsag_prev,
   filter(hbsag_positive_prop != "DUPLICATE" & hbsag_positive_prop != "NR")
 
 # Turn number columns into numeric format
-hbsag_dataset_for_fitting[,c(5,7:11)] <- apply(hbsag_dataset_for_fitting[,c(5,7:11)], 2, 
+hbsag_dataset_for_fitting[,c(9,11:15)] <- apply(hbsag_dataset_for_fitting[,c(9,11:15)], 2, 
                                                function(x) as.numeric(x))
 
 hbsag_dataset_for_fitting <- cbind(outcome = "HBsAg_prevalence",
@@ -214,7 +220,11 @@ antihbc_dataset_for_fitting <- select(subset_hbsag_prev,
                                     id_paper,
                                     id_group,
                                     id_proc,
+                                    paper_first_author,
+                                    paper_year,
                                     pop_group_clinical,
+                                    geographic_scope,
+                                    study_link,
                                     location,
                                     dp_period_assign_years,
                                     sex,
@@ -231,7 +241,7 @@ antihbc_dataset_for_fitting <- select(subset_hbsag_prev,
            
 
 # Turn number columns into numeric format
-antihbc_dataset_for_fitting[,c(5,7:11)] <- apply(antihbc_dataset_for_fitting[,c(5,7:11)], 2, 
+antihbc_dataset_for_fitting[,c(9,11:15)] <- apply(antihbc_dataset_for_fitting[,c(9,11:15)], 2, 
                                                function(x) as.numeric(x))
 
 antihbc_dataset_for_fitting <- cbind(outcome = "Anti_HBc_prevalence",
@@ -307,6 +317,8 @@ subset_hbeag_prev <- select(input_hbeag_prev,
                             id_paper,
                             id_group,
                             id_proc,
+                            paper_first_author,
+                            paper_year,
                             pop_group_clinical,
                             pop_group_demographic,
                             geographic_scope,
@@ -351,7 +363,10 @@ hbeag_dataset_for_fitting <- select(subset_hbeag_prev,
                                     id_paper,
                                     id_group,
                                     id_proc,
+                                    paper_first_author,
+                                    paper_year,
                                     pop_group_clinical,
+                                    study_link,
                                     dp_period_assign_years,
                                     sex,
                                     age_assign_years,
@@ -361,7 +376,7 @@ hbeag_dataset_for_fitting <- select(subset_hbeag_prev,
                                     sample_size)
 
 # Turn number columns into numeric format
-hbeag_dataset_for_fitting[,c(5,7:11)] <- apply(hbeag_dataset_for_fitting[,c(5,7:11)], 2, 
+hbeag_dataset_for_fitting[,c(8,10:14)] <- apply(hbeag_dataset_for_fitting[,c(8,10:14)], 2, 
                                                function(x) as.numeric(x))
 
 hbeag_dataset_for_fitting <- cbind(outcome = "HBeAg_prevalence",
@@ -381,8 +396,6 @@ names(hbeag_dataset_for_fitting)[names(hbeag_dataset_for_fitting)=="hbeag_positi
 names(hbeag_dataset_for_fitting)[names(hbeag_dataset_for_fitting)=="hbeag_positive_prop_ci_upper"] <- "ci_upper"
 
 #write.csv(hbeag_dataset_for_fitting, file = here(outpath_hbvdata, "hbeag_prevalence.csv"), row.names = FALSE)
-
-
 
 # Natural history prevalence dataset ----
 # Here the age and timepoint assignment is different from sAg/anti-HBc/eAg datasets!

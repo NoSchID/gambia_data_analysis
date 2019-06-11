@@ -3,6 +3,8 @@
 ### Clean input natural history data for The Gambia     ###
 ### Source: mapping review                              ###
 ###########################################################
+# Gambian data
+
 ## Load packages and set directories ----
 require(tidyr)  # for data processing
 require(dplyr)  # for data processing
@@ -366,6 +368,7 @@ hbeag_dataset_for_fitting <- select(subset_hbeag_prev,
                                     paper_first_author,
                                     paper_year,
                                     pop_group_clinical,
+                                    geographic_scope,
                                     study_link,
                                     dp_period_assign_years,
                                     sex,
@@ -376,7 +379,7 @@ hbeag_dataset_for_fitting <- select(subset_hbeag_prev,
                                     sample_size)
 
 # Turn number columns into numeric format
-hbeag_dataset_for_fitting[,c(8,10:14)] <- apply(hbeag_dataset_for_fitting[,c(8,10:14)], 2, 
+hbeag_dataset_for_fitting[,c(9,11:15)] <- apply(hbeag_dataset_for_fitting[,c(9,11:15)], 2, 
                                                function(x) as.numeric(x))
 
 hbeag_dataset_for_fitting <- cbind(outcome = "HBeAg_prevalence",
@@ -403,6 +406,8 @@ subset_natural_history_prev <- select(input_natural_history_prev,
                             id_paper,
                             id_group,
                             id_proc,
+                            paper_first_author,
+                            paper_year,
                             pop_group_clinical,
                             pop_group_demographic,
                             geographic_scope,
@@ -468,6 +473,8 @@ natural_history_prev_for_fitting <- select(subset_natural_history_prev,
                                     id_paper,
                                     id_group,
                                     id_proc,
+                                    paper_first_author,
+                                    paper_year,
                                     model_numerator,
                                     model_denominator,
                                     dp_period_assign_years,
@@ -480,15 +487,8 @@ natural_history_prev_for_fitting <- select(subset_natural_history_prev,
                                     sample_size) 
 
 # Turn number columns into numeric format
-natural_history_prev_for_fitting[,8:13] <- apply(natural_history_prev_for_fitting[,8:13], 2, 
+natural_history_prev_for_fitting[,c(8,10:15)] <- apply(natural_history_prev_for_fitting[,c(8,10:15)], 2, 
                                                  function(x) as.numeric(x))
-
-#natural_history_prev_for_fitting$model_denominator[
-#  natural_history_prev_for_fitting$id_paper == "GMB2"] <- "HCC"
-#natural_history_prev_for_fitting$model_numerator[
-#  natural_history_prev_for_fitting$id_paper == "GMB2"][1] <- "CC"
-#natural_history_prev_for_fitting$model_numerator[
-#  natural_history_prev_for_fitting$id_paper == "GMB2"][2] <- "DCC"
 
 # Define prevalence outcome for each row
 prevalence_outcome <- paste0(natural_history_prev_for_fitting$model_numerator, "_prevalence_in_", natural_history_prev_for_fitting$model_denominator)
@@ -548,6 +548,8 @@ subset_hbeag_prev_ld_patients <- select(input_hbeag_prev_ld_patients,
                                         id_paper,
                                         id_group,
                                         id_proc,
+                                        paper_first_author,
+                                        paper_year,
                                         pop_group_clinical,
                                         pop_group_demographic,
                                         geographic_scope,
@@ -582,6 +584,8 @@ hbeag_ld_for_fitting <- select(subset_hbeag_prev_ld_patients,
                                id_paper,
                                id_group,
                                id_proc,
+                               paper_first_author,
+                               paper_year,
                                pop_group_clinical,
                                dp_period_assign_years,
                                sex,
@@ -595,7 +599,7 @@ hbeag_ld_for_fitting <- select(subset_hbeag_prev_ld_patients,
 
 
 # Turn number columns into numeric format
-hbeag_ld_for_fitting[,c(5,7:12)] <- apply(hbeag_ld_for_fitting[,c(5,7:12)], 2, 
+hbeag_ld_for_fitting[,c(7,9:14)] <- apply(hbeag_ld_for_fitting[,c(7,9:14)], 2, 
                                           function(x) as.numeric(x))
 
 # Assign outcome and remove pop group
@@ -849,6 +853,8 @@ mtct_risk_for_fitting <- select(input_mtct_risk_for_output,
                                 id_paper,
                                 id_group,
                                 id_proc,
+                                paper_first_author,
+                                paper_year,
                                 dp_period,
                                 vaccinated,
                                 mtct_risk_prop,
@@ -883,6 +889,8 @@ prop_chronic_for_fitting <- select(input_chronic_carriage_risk,
                                 id_paper,
                                 id_group,
                                 id_proc,
+                                paper_first_author,
+                                paper_year,
                                 age_at_infection,
                                 p_chronic,
                                 p_chronic_ci_lower,
@@ -890,7 +898,7 @@ prop_chronic_for_fitting <- select(input_chronic_carriage_risk,
                                 sample_size)
 
 # Turn number columns into numeric format
-prop_chronic_for_fitting[,c(4:8)] <- apply(prop_chronic_for_fitting[,c(4:8)], 2, 
+prop_chronic_for_fitting[,c(6:10)] <- apply(prop_chronic_for_fitting[,c(6:10)], 2, 
                                            function(x) as.numeric(x))
 
 # Add outcome column

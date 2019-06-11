@@ -1,5 +1,5 @@
-"outcome","id_paper","id_group","id_proc","time","vaccinated","data_value","ci_lower","ci_upper","sample_size"
-"mtct_risk","18",1,"x",1979,"No",0.33,NA,NA,9
-"mtct_risk","31",3,"x",1979,"No",0.12,NA,NA,27
-"mtct_risk","16",1,"x",1985,"No",0.15,NA,NA,20
-"mtct_risk","PLUS3",1,"x",1989,"No",0.16,NA,NA,38
+"outcome","id_paper","id_group","id_proc","paper_first_author","paper_year","time","vaccinated","data_value","ci_lower","ci_upper","sample_size"
+"mtct_risk","18",1,"x","Ayoola",1981,1979,"No",0.33,NA,NA,9
+"mtct_risk","31",3,"x","Barin",1981,1979,"No",0.12,NA,NA,27
+"mtct_risk","16",1,"x","Ayoola",1987,1985,"No",0.15,NA,NA,20
+"mtct_risk","PLUS3",1,"x","Kodjoh",1992,1989,"No",0.16,NA,NA,38

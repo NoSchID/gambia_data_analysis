@@ -12,6 +12,11 @@
 "HBsAg_prevalence","GMB1",1,"x","Lemoine",2016,"General_population","Sub-national - multiple locations","PROLIFICA",2012.5,"Female",45,0.075,0.055,0.1,1107
 "HBsAg_prevalence","GMB1",1,"x","Lemoine",2016,"General_population","Sub-national - multiple locations","PROLIFICA",2012.5,"Female",55,0.04,0.015,0.065,751
 "HBsAg_prevalence","GMB1",1,"x","Lemoine",2016,"General_population","Sub-national - multiple locations","PROLIFICA",2012.5,"Female",68,0.045,0.015,0.075,857
+"HBsAg_prevalence","PLUS5",1,"x","Bittaye",2019,"General_population","National",NA,2015,"Female",19,0,NA,NA,58
+"HBsAg_prevalence","PLUS5",1,"x","Bittaye",2019,"General_population","National",NA,2015,"Female",24.5,0.034,NA,NA,119
+"HBsAg_prevalence","PLUS5",1,"x","Bittaye",2019,"General_population","National",NA,2015,"Female",29.5,0.122,NA,NA,131
+"HBsAg_prevalence","PLUS5",1,"x","Bittaye",2019,"General_population","National",NA,2015,"Female",34.5,0.125,NA,NA,80
+"HBsAg_prevalence","PLUS5",1,"x","Bittaye",2019,"General_population","National",NA,2015,"Female",40.5,0.235,NA,NA,34
 "HBsAg_prevalence","GMB5",2,"x","Thursz",1995,"Blood_donors","Sub-national - multiple locations",NA,1989,"Male",36,0.17,NA,NA,260
 "HBsAg_prevalence","GMB1",1,"x","Lemoine",2016,"General_population","Sub-national - multiple locations","PROLIFICA",2012.5,"Male",35,0.16,0.13,0.19,575
 "HBsAg_prevalence","GMB1",1,"x","Lemoine",2016,"General_population","Sub-national - multiple locations","PROLIFICA",2012.5,"Male",45,0.09,0.06,0.12,349
@@ -50,6 +55,12 @@
 "HBsAg_prevalence","GMB6",1,"b","Whittle",1990,"General_population","Sub-national - single village or small area","KM vaccine cohort",1984,"Mixed",12.5,0.357,NA,NA,56
 "HBsAg_prevalence","GMB6",1,"a","Whittle",1990,"General_population","Sub-national - single village or small area","KM vaccine cohort",1984,"Mixed",17.5,0.17,NA,NA,47
 "HBsAg_prevalence","GMB6",1,"b","Whittle",1990,"General_population","Sub-national - single village or small area","KM vaccine cohort",1984,"Mixed",17.5,0.333,NA,NA,30
+"HBsAg_prevalence","GMB18",1,"x","Mayans",1990,"General_population","Sub-national - multiple locations",NA,1988,"Mixed",1,0.06,NA,NA,194
+"HBsAg_prevalence","GMB18",1,"x","Mayans",1990,"General_population","Sub-national - multiple locations",NA,1988,"Mixed",2,0.095,NA,NA,194
+"HBsAg_prevalence","GMB18",1,"x","Mayans",1990,"General_population","Sub-national - multiple locations",NA,1988,"Mixed",3,0.21,NA,NA,195
+"HBsAg_prevalence","GMB18",1,"x","Mayans",1990,"General_population","Sub-national - multiple locations",NA,1988,"Mixed",4,0.15,NA,NA,195
+"HBsAg_prevalence","GMB18",1,"x","Mayans",1990,"General_population","Sub-national - multiple locations",NA,1988,"Mixed",5,0.16,NA,NA,195
+"HBsAg_prevalence","GMB18",2,"x","Mayans",1990,"General_population","Sub-national - multiple locations",NA,1988,"Mixed",34,0.14,NA,NA,867
 "HBsAg_prevalence","GMB4",1,"x","Bellamy",1998,"Hospital_patients_not_HBV_related","Sub-national - multiple locations",NA,1989,"Mixed",4,0.182,NA,NA,990
 "HBsAg_prevalence","GMB5",1,"x","Thursz",1995,"Hospital_patients_not_HBV_related","Sub-national - multiple locations",NA,1989,"Mixed",1,0.075,NA,NA,435
 "HBsAg_prevalence","GMB5",1,"x","Thursz",1995,"Hospital_patients_not_HBV_related","Sub-national - multiple locations",NA,1989,"Mixed",3,0.115,NA,NA,468

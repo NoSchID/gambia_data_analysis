@@ -48,6 +48,12 @@
 "Anti_HBc_prevalence","GMB6",1,"b","Whittle",1990,"General_population","Sub-national - single village or small area","KM vaccine cohort",1984,"Mixed",14,1,NA,NA,10
 "Anti_HBc_prevalence","GMB6",1,"a","Whittle",1990,"General_population","Sub-national - single village or small area","KM vaccine cohort",1984,"Mixed",17.5,0.8,NA,NA,47
 "Anti_HBc_prevalence","GMB6",1,"b","Whittle",1990,"General_population","Sub-national - single village or small area","KM vaccine cohort",1984,"Mixed",17.5,1,NA,NA,30
+"Anti_HBc_prevalence","GMB18",1,"x","Mayans",1990,"General_population","Sub-national - multiple locations",NA,1988,"Mixed",1,0.06,NA,NA,194
+"Anti_HBc_prevalence","GMB18",1,"x","Mayans",1990,"General_population","Sub-national - multiple locations",NA,1988,"Mixed",2,0.175,NA,NA,194
+"Anti_HBc_prevalence","GMB18",1,"x","Mayans",1990,"General_population","Sub-national - multiple locations",NA,1988,"Mixed",3,0.43,NA,NA,195
+"Anti_HBc_prevalence","GMB18",1,"x","Mayans",1990,"General_population","Sub-national - multiple locations",NA,1988,"Mixed",4,0.35,NA,NA,195
+"Anti_HBc_prevalence","GMB18",1,"x","Mayans",1990,"General_population","Sub-national - multiple locations",NA,1988,"Mixed",5,0.41,NA,NA,195
+"Anti_HBc_prevalence","GMB18",2,"x","Mayans",1990,"General_population","Sub-national - multiple locations",NA,1988,"Mixed",34,0.91,NA,NA,867
 "Anti_HBc_prevalence","GMB4",1,"x","Bellamy",1998,"Hospital_patients_not_HBV_related","Sub-national - multiple locations",NA,1989,"Mixed",4,0.34,NA,NA,990
 "Anti_HBc_prevalence","GMB5",1,"x","Thursz",1995,"Hospital_patients_not_HBV_related","Sub-national - multiple locations",NA,1989,"Mixed",1,0.125,NA,NA,435
 "Anti_HBc_prevalence","GMB5",1,"x","Thursz",1995,"Hospital_patients_not_HBV_related","Sub-national - multiple locations",NA,1989,"Mixed",3,0.21,NA,NA,468

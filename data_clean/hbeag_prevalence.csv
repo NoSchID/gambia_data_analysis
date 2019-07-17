@@ -14,6 +14,8 @@
 "HBeAg_prevalence","GMB16",1,"a","Whittle",1983,"HBsAg_positive_general_population","Sub-national","KM vaccine cohort",1980,"Mixed",12.5,0.25,NA,NA,12
 "HBeAg_prevalence","GMB16",1,"b","Whittle",1983,"HBsAg_positive_general_population","Sub-national","KM vaccine cohort",1980,"Mixed",12.5,0,NA,NA,5
 "HBeAg_prevalence","GMB7",1,"x","Ryder",1984,"HBsAg_positive_hospital_patients_not_HBV_related","National",NA,1981.5,"Mixed",1.5,0.5,NA,NA,4
+"HBeAg_prevalence","GMB12",1,"x","Ryder",1992,"HBsAg_positive_HCC_patients_cirrhosis_unknown","National",NA,1982,"Mixed",32.5,0.31,NA,NA,29
+"HBeAg_prevalence","GMB12",1,"x","Ryder",1992,"HBsAg_positive_HCC_patients_cirrhosis_unknown","National",NA,1982,"Mixed",61.5,0.06,NA,NA,34
 "HBeAg_prevalence","GMB12",2,"x","Ryder",1992,"HBsAg_positive_general_population_matched","National",NA,1982,"Mixed",48,0,NA,NA,14
 "HBeAg_prevalence","GMB12",4,"a","Ryder",1992,"HBsAg_positive_general_population","National",NA,1982,"Mixed",7.5,0.67,NA,NA,73
 "HBeAg_prevalence","GMB12",4,"a","Ryder",1992,"HBsAg_positive_general_population","National",NA,1982,"Mixed",34,0.15,NA,NA,86
@@ -21,6 +23,8 @@
 "HBeAg_prevalence","8",1,"x","Mendy",2008,"Chronic_HBV_carriers","Sub-national","KM cohort of chronic carriers",1984,"Mixed",7.5,0.584,NA,NA,65
 "HBeAg_prevalence","8",1,"x","Mendy",2008,"Chronic_HBV_carriers","Sub-national","KM cohort of chronic carriers",1984,"Mixed",12.5,0.46,NA,NA,39
 "HBeAg_prevalence","8",1,"x","Mendy",2008,"Chronic_HBV_carriers","Sub-national","KM cohort of chronic carriers",1984,"Mixed",17.5,0.333,NA,NA,18
+"HBeAg_prevalence","GMB18",1,"x","Mayans",1990,"General_population","Sub-national - multiple locations",NA,1988,"Mixed",3,0.74,NA,NA,140
+"HBeAg_prevalence","GMB18",2,"x","Mayans",1990,"General_population","Sub-national - multiple locations",NA,1988,"Mixed",34,0.07,NA,NA,103
 "HBeAg_prevalence","8",1,"x","Mendy",2008,"Chronic_HBV_carriers","Sub-national","KM cohort of chronic carriers",1989,"Mixed",7.5,0.595,NA,NA,42
 "HBeAg_prevalence","8",1,"x","Mendy",2008,"Chronic_HBV_carriers","Sub-national","KM cohort of chronic carriers",1989,"Mixed",12.5,0.413,NA,NA,46
 "HBeAg_prevalence","8",1,"x","Mendy",2008,"Chronic_HBV_carriers","Sub-national","KM cohort of chronic carriers",1989,"Mixed",17.5,0.428,NA,NA,21
@@ -47,6 +51,15 @@
 "HBeAg_prevalence","1",1,"x","Shimakawa",2016,"Chronic_HBV_carriers","Sub-national","KM cohort of chronic carriers",1993.5,"Mixed",17,0.24,NA,NA,16
 "HBeAg_prevalence","1",1,"x","Shimakawa",2016,"Chronic_HBV_carriers","Sub-national","KM cohort of chronic carriers",1993.5,"Mixed",19,0.08,NA,NA,16
 "HBeAg_prevalence","1",1,"x","Shimakawa",2016,"Chronic_HBV_carriers","Sub-national","KM cohort of chronic carriers",1993.5,"Mixed",25,0.1,NA,NA,118
+"HBeAg_prevalence","GMB15",1,"x","Mendy",2010,"HBsAg_positive_HCC_patients_cirrhosis_unknown","National","GLCS subset",1999,"Mixed",26,0.23,NA,NA,40
+"HBeAg_prevalence","GMB15",1,"x","Mendy",2010,"HBsAg_positive_HCC_patients_cirrhosis_unknown","National","GLCS subset",1999,"Mixed",40,0.11,NA,NA,36
+"HBeAg_prevalence","GMB15",1,"x","Mendy",2010,"HBsAg_positive_HCC_patients_cirrhosis_unknown","National","GLCS subset",1999,"Mixed",50,0.24,NA,NA,33
+"HBeAg_prevalence","GMB15",1,"x","Mendy",2010,"HBsAg_positive_HCC_patients_cirrhosis_unknown","National","GLCS subset",1999,"Mixed",60,0.1,NA,NA,10
+"HBeAg_prevalence","GMB15",1,"x","Mendy",2010,"HBsAg_positive_HCC_patients_cirrhosis_unknown","National","GLCS subset",1999,"Mixed",76.5,0.1,NA,NA,10
+"HBeAg_prevalence","GMB15",2,"x","Mendy",2010,"HBsAg_positive_cirrhosis_patients_no_HCC","National","GLCS subset",1999,"Mixed",26,0.32,NA,NA,22
+"HBeAg_prevalence","GMB15",2,"x","Mendy",2010,"HBsAg_positive_cirrhosis_patients_no_HCC","National","GLCS subset",1999,"Mixed",40,0.27,NA,NA,11
+"HBeAg_prevalence","GMB15",2,"x","Mendy",2010,"HBsAg_positive_cirrhosis_patients_no_HCC","National","GLCS subset",1999,"Mixed",50,0.2,NA,NA,15
+"HBeAg_prevalence","GMB15",2,"x","Mendy",2010,"HBsAg_positive_cirrhosis_patients_no_HCC","National","GLCS subset",1999,"Mixed",60,0.4,NA,NA,5
 "HBeAg_prevalence","GMB15",3,"x","Mendy",2010,"Chronic_HBV_carriers","National","GLCS subset",1999,"Mixed",26,0.04,NA,NA,26
 "HBeAg_prevalence","GMB15",3,"x","Mendy",2010,"Chronic_HBV_carriers","National","GLCS subset",1999,"Mixed",40,0.09,NA,NA,11
 "HBeAg_prevalence","GMB15",3,"x","Mendy",2010,"Chronic_HBV_carriers","National","GLCS subset",1999,"Mixed",50,0,NA,NA,10
